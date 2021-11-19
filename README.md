@@ -1,6 +1,8 @@
+#Small graphic editor
+
 ## Disclaimer
 Work in progress
-# Description
+## Description
 Educational project of the third semester. The main goal of this project is learniing concepts and techniques of object-oriented programming.
 
 ### Currently implemented:
