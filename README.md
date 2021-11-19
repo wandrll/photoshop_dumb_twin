@@ -3,7 +3,7 @@
 ## Disclaimer
 Work in progress
 ## Description
-Educational project of the third semester. The main goal of this project is learniing concepts and techniques of object-oriented programming.
+Educational project of the third semester. The main goal of this project is learning concepts and techniques of object-oriented programming.
 
 ### Currently implemented:
 1. Palette of choice of color and brush size. 
