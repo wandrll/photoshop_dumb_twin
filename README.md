@@ -21,4 +21,4 @@ For buildung this project you need to type
 make init
 make
 ```
-The executable file lies in the "bin" folder and its name is "editor"
+The executable file is located in the "bin" folder and its name is "editor"
