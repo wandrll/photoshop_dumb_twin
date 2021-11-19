@@ -1,4 +1,4 @@
-#Small graphic editor
+# Small graphic editor
 
 ## Disclaimer
 Work in progress
