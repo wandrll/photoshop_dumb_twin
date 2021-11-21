@@ -11,15 +11,15 @@ Educational project of the third semester. The main goal of this project is lear
 3. Simple text box.
 4. Opening images via filename in a text box.
 5. Abstract spline widget
+6. Layers in canvas
 
 ### To do list
 1. Create simple user interface
-2. Add layers for canvas
 3. Add widget which provides different tools
 4. Add a system of plugins that modify the image
 
 
-### Screeenshot of current version
+### Screeenshot of current version (outdated)
 ![image info](./examples/example.png)
 
 ## Requirments:
