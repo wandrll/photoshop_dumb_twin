@@ -21,7 +21,7 @@ Spline_field::Spline_field (const int x, const int y, const int width, const int
 
 
     for (int i = 0; i < cnt; i++){
-        Controller_spline<Move_slider>* control = new Controller_spline<Move_slider>(this);
+        Controller<Move_slider, Spline_field>* control = new Controller<Move_slider, Spline_field>(this);
         Slider_for_field* curr_slider = new Slider_for_field(i * ((double)width)/((double)cnt), height/2 - 10, 20, 20, 0, 0, width, height, &sliders);
         curr_slider->add_controller(control);
 
@@ -149,7 +149,7 @@ bool Spline_field::on_right_mouse_press (const int x, const int y, const Event::
     }
 
     if(is_in_widget(x, y, event.click)){
-        Controller_spline<Move_slider>* control = new Controller_spline<Move_slider>(this);
+        Controller<Move_slider, Spline_field>* control = new Controller<Move_slider, Spline_field>(this);
         Slider_for_field* curr_slider = new Slider_for_field(event.click.x - x -this->x - 10, event.click.y - y - this->y - 10, 20, 20, 0, 0, width, height, &sliders);
         curr_slider->add_controller(control);
 

@@ -54,28 +54,6 @@ class Saturation_and_lightness_picker : public Widget_manager {
 
 };
 
-// class Hue_picker;
-
-template<typename Func>
-class Controller_saturation_and_lightness: public Controller {
-    public:
-
-    Controller_saturation_and_lightness (Saturation_and_lightness_picker* widget) :
-        widget(widget)
-    {}
-
-    virtual void operator() (const Data_for_controller& data){
-        if (widget){
-            Func()(data, widget);
-            // fc(win);
-        }
-    }
-
-    private:
-    Saturation_and_lightness_picker* widget;
-
-};
-
 
 class Hue_picker : public Widget_manager {
     public:

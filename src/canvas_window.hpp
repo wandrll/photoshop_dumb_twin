@@ -5,10 +5,11 @@
 #include "settings.hpp"
 #include "top_bar.hpp"
 #include "graphics_provider.hpp"
-#include <memory>
+
 class Brush;
 
-class Canvas_field;
+class Layer_manager_widget;
+class Layer;
 
 Color convert_color(float h, float s, float l, int opacity);
 
@@ -19,16 +20,16 @@ class Canvas_widget : public Window_widget {
 
     Canvas_widget (const int x, const int y, const int width, const int height);
 
-    Canvas_field* get_canvas_field_ptr(){
-        return this->field;
-    }
+    // Layer* get_canvas_field_ptr(){
+    //     return this->field;
+    // }
 
     void load_image(const std::string name);
 
 
     private:
 
-    Canvas_field* field;
+    Layer_manager_widget* field;
 
 
 
@@ -46,10 +47,8 @@ class Brush{
     {}
 
 
-    void draw (const int x, const int y, Texture& texture){
-        this->circle.set_position(x - this->brush_size/2, y - this->brush_size/2);
-        this->circle.draw(texture);
-    }
+    void draw (const int x, const int y, Layer* layer);
+
 
     void set_color(const Color& color){
         this->color = color;
@@ -92,44 +91,23 @@ class Brush{
 class Saturation_and_lightness_picker;
 class Brush_size_picker;
 
-template<typename Func>
-class Controller_brush: public Controller {
+
+
+
+
+
+class Layer : public Widget {
     public:
-
-    Controller_brush (Brush* brush) :
-        brush(brush)
-    {}
-
-    virtual void operator() (const Data_for_controller& data){
-        if (brush){
-            Func()(data, brush);
-        }
-    }
-
-    private:
-
-    Brush* brush;
-
-};
-
-
-
-
-class Canvas_field : public Widget {
-    public:
-    Canvas_field (const int x, const int y, const int width, const int height);
+    Layer (const int x, const int y, const int width, const int height);
 
     virtual void draw (const int x, const int y, Window& window);
     // virtual bool handle_event(const int x, const int y, const Event& event);
 
     void load_image(const std::string name);
 
-
-
-    virtual bool on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event);
-    virtual bool on_mouse_pressed_move (const int x, const int y, const Event::Mouse_pressed_move& event);
-    virtual bool on_mouse_release (const int x, const int y, const Event::Mouse_release& event);
-    
+    Texture* get_texture(){
+        return &texture;
+    }
 
     private:
 
@@ -137,6 +115,79 @@ class Canvas_field : public Widget {
 
 
 };
+
+
+
+class Layer_manager_widget : public Widget_manager {
+    public:
+    Layer_manager_widget (const int x, const int y, const int width, const int height);
+
+    ~Layer_manager_widget ();
+    
+    virtual bool on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event);
+    virtual bool on_mouse_pressed_move (const int x, const int y, const Event::Mouse_pressed_move& event);
+    virtual bool on_mouse_release (const int x, const int y, const Event::Mouse_release& event);
+    
+    virtual void draw (const int x, const int y, Window& window);
+
+
+    void add_layer ();
+    void next_layer ();
+
+
+    Layer* get_active_layer(){
+        return layers[active_layer];
+    }
+
+    int get_active_layer_int(){
+        return active_layer;
+    }
+
+    private:
+
+    int active_layer;
+
+    std::vector<Layer*> layers;
+
+};
+
+
+class Next_layer{
+    public:
+
+    void operator() (const Data_for_controller& data, Layer_manager_widget* widget){
+       
+        widget->next_layer();
+        printf ("active layer = %d\n", widget->get_active_layer_int());
+    }
+
+};
+
+class Add_layer{
+    public:
+
+    void operator() (const Data_for_controller& data, Layer_manager_widget* widget){
+       
+        widget->add_layer();
+
+    }
+
+};
+
+
+
+class Layer_controller_widget : public Widget_manager {
+    public:
+
+    Layer_controller_widget (const int x, const int y, const int width, const int height, Layer_manager_widget* layers);
+
+
+    private:
+
+    Layer_manager_widget* layers;
+
+};
+
 
 
 

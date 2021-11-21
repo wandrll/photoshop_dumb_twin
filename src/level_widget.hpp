@@ -60,27 +60,6 @@ class Move_slider{
 
 
 
-template<typename Func>
-class Controller_spline: public Controller {
-    public:
-
-    Controller_spline (Spline_field* widget) :
-        widget(widget)
-    {}
-
-    virtual void operator() (const Data_for_controller& data){
-        if (widget){
-            Func()(data, widget);
-            // fc(win);
-        }
-    }
-
-    private:
-    Spline_field* widget;
-
-};
-
-
 
 
 

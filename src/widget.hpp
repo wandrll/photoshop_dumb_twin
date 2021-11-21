@@ -177,12 +177,12 @@ union Data_for_controller{
 
 
 
-class Controller {
+class Abstract_controller {
     public:
 
     virtual void operator() (const Data_for_controller& data) = 0;
 
-    virtual ~Controller () {
+    virtual ~Abstract_controller () {
 
     }
 
@@ -215,11 +215,11 @@ class Move_widget{
 };
 
 
-template<typename Func>
-class Controller_widget: public Controller {
+template<typename Func, typename Widget_name>
+class Controller: public Abstract_controller {
     public:
 
-    Controller_widget (Widget* widget) :
+    Controller (Widget_name* widget) :
         widget(widget)
     {}
 
@@ -232,7 +232,7 @@ class Controller_widget: public Controller {
 
     private:
 
-    Widget* widget;
+    Widget_name* widget;
 
 };
 
@@ -249,30 +249,6 @@ class Open{
 
 };
 
-
-template<typename Func>
-class Controller_widget_manager: public Controller {
-    public:
-
-    Controller_widget_manager (Widget_manager* widget) :
-        widget(widget)
-    {}
-
-    virtual void operator() (const Data_for_controller& data){
-        if (widget){
-            Func()(data, widget);
-
-        }
-    }
-
-    private:
-    Widget_manager* widget;
-
-
-
-
-
-};
 
 
 #endif

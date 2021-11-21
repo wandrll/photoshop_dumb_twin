@@ -18,7 +18,7 @@ Top_bar::Top_bar(const int x, const int y, const int width, const int height, Wi
         button_close->set_normal_button(exit);
         button_close->set_hovered_button(hover_exit);
 
-        Controller_widget<Close_widget>* control1 = new Controller_widget<Close_widget>(widget);   
+        Controller<Close_widget, Widget>* control1 = new Controller<Close_widget, Widget>(widget);   
            
         button_close->add_controller(control1);
 
@@ -39,7 +39,7 @@ Top_bar::Top_bar(const int x, const int y, const int width, const int height, Wi
 
 
         Dragable_top_bar_zone* move_zone = new Dragable_top_bar_zone(0, 0, width - height + border, height);
-        Controller_widget<Move_widget>* control2 = new Controller_widget<Move_widget>(widget);
+        Controller<Move_widget, Widget>* control2 = new Controller<Move_widget, Widget>(widget);
 
 
 

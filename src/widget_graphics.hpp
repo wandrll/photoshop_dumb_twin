@@ -44,10 +44,35 @@ class Text_widget : public Widget {
     }
     
     
+    void set_string (const std::string& line){
+        this->text.set_string(line);
+    }
    
     
     private:
     Text text;
+};
+
+
+template<typename Func>
+class Controller_text_widget: public Text_widget {
+    public:
+
+    Controller_text_widget (Text_widget* widget) :
+        widget(widget)
+    {}
+
+    virtual void operator() (const Data_for_controller& data){
+        if (widget){
+            Func()(data, widget);
+
+        }
+    }
+
+    private:
+
+    Text_widget* widget;
+
 };
 
 

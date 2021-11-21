@@ -25,7 +25,7 @@ class Slider : public Widget_manager{
     
     void proceed_controllers(const Data_for_controller& data);
 
-    void add_controller(Controller* controller){
+    void add_controller(Abstract_controller* controller){
         this->controller.push_back(controller);
     }
 
@@ -49,7 +49,7 @@ class Slider : public Widget_manager{
     int top_y_limit;
     int right_x_limit;
     int bottom_y_limit;
-    std::vector<Controller*> controller;
+    std::vector<Abstract_controller*> controller;
 
 };
 
@@ -60,7 +60,7 @@ class Horizontal_slider_bar : public Widget_manager{
 
     Horizontal_slider_bar (int x, int y, int width, int height);
 
-    void add_controller (Controller* control){
+    void add_controller (Abstract_controller* control){
         this->slider->add_controller(control);
     }
 

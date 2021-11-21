@@ -19,7 +19,7 @@ class Text_field : public Widget{
     virtual ~Text_field ();
 
 
-    void add_controller (Controller* control){
+    void add_controller (Abstract_controller* control){
         controllers.push_back(control);
     }
 
@@ -53,7 +53,7 @@ class Text_field : public Widget{
     Text text;
     Rectangle background;
 
-    std::vector<Controller*> controllers;
+    std::vector<Abstract_controller*> controllers;
 
 
 };
@@ -68,28 +68,6 @@ class Proceed_controllers{
 };
 
 
-template<typename Func>
-class Controller_text_field: public Controller {
-    public:
 
-    Controller_text_field (Text_field* widget) :
-        widget(widget)
-    {}
-
-    virtual void operator() (const Data_for_controller& data){
-        if (widget){
-            Func()(data, widget);
-
-        }
-    }
-
-    private:
-    Text_field* widget;
-
-
-
-
-
-};
 
 #endif

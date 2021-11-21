@@ -83,7 +83,7 @@ Saturation_and_lightness_picker::Saturation_and_lightness_picker (const int x, c
     texture(size, size)
     {
 
-        Controller_brush<Update_brush_light_and_saturation>* contr = new Controller_brush<Update_brush_light_and_saturation>(brush); 
+        Controller<Update_brush_light_and_saturation, Brush>* contr = new Controller<Update_brush_light_and_saturation, Brush>(brush); 
 
         Slider* slider = new Slider(0, 0, SLIDER_SIZE, SLIDER_SIZE, 0, 0, size, size);
         slider->add_controller(contr);
@@ -179,10 +179,10 @@ Hue_picker::Hue_picker (const int x, const int y, const int width, const int hei
     size_y(height)
     {
         Slider* slider = new Slider(-SLIDER_SIZE/2, -SLIDER_SIZE/2 + height/2, SLIDER_SIZE, SLIDER_SIZE,0, height/2, width, height/2);        
-        Controller_brush<Update_brush_hue>* contr = new Controller_brush<Update_brush_hue>(brush); 
+        Controller<Update_brush_hue, Brush>* contr = new Controller<Update_brush_hue, Brush>(brush); 
         slider->add_controller(contr);
         
-        Controller_saturation_and_lightness<Set_new_hue>* contr2 = new Controller_saturation_and_lightness<Set_new_hue>(palette);
+        Controller<Set_new_hue, Saturation_and_lightness_picker>* contr2 = new Controller<Set_new_hue, Saturation_and_lightness_picker>(palette);
         slider->add_controller(contr2); 
         
         this->widgets.push_back(slider);
@@ -225,7 +225,7 @@ class Set_brush_size{
 
 Brush_size_picker::Brush_size_picker (const int x, const int y, const int width, const int height) :
     Horizontal_slider_bar(x, y, width, height){
-        this->slider->add_controller(new Controller_brush<Set_brush_size>(brush));
+        this->slider->add_controller(new Controller<Set_brush_size, Brush>(brush));
 }
 
 
@@ -242,7 +242,7 @@ class Set_brush_opacity{
 
 Opacity_picker::Opacity_picker (const int x, const int y, const int width, const int height) :
     Horizontal_slider_bar(x, y, width, height){
-        this->slider->add_controller(new Controller_brush<Set_brush_opacity>(brush));
+        this->slider->add_controller(new Controller<Set_brush_opacity, Brush>(brush));
 }
 
 

@@ -25,7 +25,7 @@ class Rectangle_Button : public Widget{
 
     
 
-    void add_controller (Controller* control){
+    void add_controller (Abstract_controller* control){
         this->controller.push_back(control);
     }
 
@@ -67,7 +67,7 @@ class Rectangle_Button : public Widget{
     protected:
     Widget* regular_button;
 
-    std::vector<Controller*> controller;
+    std::vector<Abstract_controller*> controller;
     bool is_pressed;
 
 };

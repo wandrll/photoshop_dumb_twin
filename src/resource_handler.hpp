@@ -30,6 +30,8 @@ enum class Resource_type{
     OK_BUTTON,
     OK_HOVERED_BUTTON,
 
+    CANVAS_BACKGROUND,
+
     TYPE_CNT
 };
 

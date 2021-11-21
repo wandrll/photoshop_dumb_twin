@@ -30,7 +30,7 @@ class Dragable_top_bar_zone : public Widget_manager{
 
     }
 
-    void set_controller (Controller* control){
+    void set_controller (Abstract_controller* control){
         this->controller = control;
     }
 
@@ -43,7 +43,7 @@ class Dragable_top_bar_zone : public Widget_manager{
 
     private:
 
-    Controller* controller;
+    Abstract_controller* controller;
 
 };
 

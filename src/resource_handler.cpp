@@ -70,5 +70,9 @@ void Resource_handler::load_resources (){
     this->load_sprite(Resource_type::RIGHT_SLIDER_BAR   ,   "resources/right_slidebar.png");  
     this->load_sprite(Resource_type::OK_BUTTON          ,   "resources/ok/ok.png");  
     this->load_sprite(Resource_type::OK_HOVERED_BUTTON  ,   "resources/ok/ok_hovered.png");  
+    this->load_sprite(Resource_type::CANVAS_BACKGROUND  ,   "resources/background.png");  
+
+
+
 
 }
