@@ -5,94 +5,14 @@
 #include "settings.hpp"
 #include "top_bar.hpp"
 #include "graphics_provider.hpp"
+#include "tools.hpp"
+#include "utils.hpp"
+#include "singleton.hpp"
 
-class Brush;
+extern Singleton* global_singleton;
+
 
 class Layer_manager_widget;
-class Layer;
-
-Color convert_color(float h, float s, float l, int opacity);
-
-extern Brush* brush;
-
-class Canvas_widget : public Window_widget {
-    public:
-
-    Canvas_widget (const int x, const int y, const int width, const int height);
-
-    // Layer* get_canvas_field_ptr(){
-    //     return this->field;
-    // }
-
-    void load_image(const std::string name);
-
-
-    private:
-
-    Layer_manager_widget* field;
-
-
-
-};
-
-
-class Brush{
-    public:
-
-    Brush (const int size, const Color color = {0,0,0}, const double max_size = 20) :
-        brush_size(size),
-        color(color),
-        circle(0, 0, brush_size, color),
-        max_size(max_size)
-    {}
-
-
-    void draw (const int x, const int y, Layer* layer);
-
-
-    void set_color(const Color& color){
-        this->color = color;
-        this->circle.set_color(color);
-    }
-
-    void set_opacity(const double opacity){
-        int new_alpha = opacity * 255;
-        printf("new alpha = %d\n", new_alpha);
-        color.color.a = new_alpha;
-        circle.set_color(color);
-    }
-
-    void set_size (const double size){
-        this->brush_size = size * max_size;
-        // printf("new size is %lg\n", this-)
-        this->circle.set_size(this->brush_size);
-    }
-
-    void update_color(){
-        color = convert_color(hue, saturation, light, color.color.a);
-        circle.set_color(color);
-        color.print();
-    }
-
-    double hue;
-    double saturation;
-    double light;
-
-    
-    private:
-    int brush_size;
-    double max_size;
-    Color color;
-    Circle circle;
-    
-
-};
-
-class Saturation_and_lightness_picker;
-class Brush_size_picker;
-
-
-
 
 
 
@@ -105,16 +25,54 @@ class Layer : public Widget {
 
     void load_image(const std::string name);
 
-    Texture* get_texture(){
+    Texture* get_active_texture(){
         return &texture;
     }
+
+    Texture* get_preview_texture(){
+        return &preview_texture;
+    }
+
+    void merge_with_preview (const Blend_mode& mode){
+        Sprite sprite;
+        sprite.set_texture(preview_texture);
+
+        sprite.draw(texture, 0, 0, mode);
+        preview_texture.clear();
+    }
+
+
+    void update_texture_to_draw (const Blend_mode& mode){
+        // texture_to_draw.clear
+
+        Sprite sprite;
+        sprite.set_texture(texture);
+        sprite.draw(texture_to_draw, 0, 0, Blend_mode(Blending::Factor::One, Blending::Factor::Zero));
+
+        sprite.set_texture(preview_texture);
+        sprite.draw(texture_to_draw, 0, 0, mode);
+
+    }
+ 
+
+    Vector get_size (){
+        return texture.get_size();
+    }
+
+    const Color* get_array (){
+        return texture.get_array();
+    } 
+
 
     private:
 
     Texture texture;
+    Texture preview_texture;
 
 
+    Texture texture_to_draw;
 };
+
 
 
 
@@ -134,8 +92,12 @@ class Layer_manager_widget : public Widget_manager {
     void add_layer ();
     void next_layer ();
 
+    
 
     Layer* get_active_layer(){
+        if (active_layer == -1){
+            return nullptr;
+        }
         return layers[active_layer];
     }
 
@@ -150,6 +112,33 @@ class Layer_manager_widget : public Widget_manager {
     std::vector<Layer*> layers;
 
 };
+
+
+class Canvas_widget : public Window_widget {
+    public:
+
+    Canvas_widget (const int x, const int y, const int width, const int height);
+
+    // Layer* get_canvas_field_ptr(){
+    //     return this->field;
+    // }
+
+    void load_image(const std::string name);
+
+    Layer* get_active_layer(){
+        return field->get_active_layer();
+    }
+
+    private:
+
+    Layer_manager_widget* field;
+
+
+
+};
+
+
+
 
 
 class Next_layer{

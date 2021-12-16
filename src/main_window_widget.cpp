@@ -1,61 +1,24 @@
+#include "singleton.hpp"
+#include "drop_down_box.hpp"
 #include "main_window_widget.hpp"
-#include "event.hpp"
+#include "top_bar.hpp"
+// #include "event.hpp"
+#include "mouse.hpp"
+#include "keyboard.hpp"
+#include "settings.hpp"
+#include "canvas_window.hpp"
+
+Main_window_widget::Main_window_widget (const int width, const int height, const char* name) :
+        Widget_event_reciever(0, 0, width, height),
+        window(width, height, name)
+    {
+        set_mouse(&window);
+        global_singleton->set_window(&window);
+
+        File_sub_widget* file = new File_sub_widget (0, 0, 100, TOP_BAR_HEIGHT);
+        this->widgets.push_back(file);
 
 
-
-void Main_window_widget::run (){
-        Event::Left_Mouse_press mouse_press;
-        Event::Mouse_release mouse_release;
-        Event::Mouse_pressed_move mouse_pressed_move;
-        Event::Mouse_released_move mouse_released_move;
-        Event::Right_Mouse_press mouse_right_press;
-        Event::Keyboard_event keyboard_event;
-
-        while(true){
-            draw();
-            update();
-
-            mouse.update();
-            keyboard.update();
-
-            if (this->mouse.get_press_event(mouse_press)){
-                mouse_press.print();
-                on_mouse_press(0, 0, mouse_press);
-            }
-
-            if (this->mouse.get_right_press_event(mouse_right_press)){
-                mouse_press.print();
-                on_right_mouse_press(0, 0, mouse_right_press);
-            }
-            
-            if (this->mouse.get_release_event(mouse_release)){
-                mouse_release.print();
-                on_mouse_release(0, 0, mouse_release);
-            }
-            
-            if (this->mouse.get_press_move_event(mouse_pressed_move)){
-                mouse_pressed_move.print();
-                on_mouse_pressed_move(0, 0, mouse_pressed_move);
-            }
-            
-            if (this->mouse.get_release_move_event(mouse_released_move)){
-                mouse_released_move.print();
-                on_mouse_released_move(0, 0, mouse_released_move);
-            }
-
-            if (this->keyboard.poll_event(keyboard_event)){
-                keyboard_event.print();
-                on_keyboard(keyboard_event);
-            }
-
-            // if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)){
-                // mark_close();
-            // }
-
-
-            if(this->mark_for_delete){
-                break;
-            }
-        }
-
+        Top_bar* bar = new Top_bar(100, 0, RESOLUTION_WIDTH -100, TOP_BAR_HEIGHT, this);
+        this->widgets.push_back(bar);
     }

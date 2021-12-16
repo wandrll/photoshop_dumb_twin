@@ -86,6 +86,47 @@ enum class Control_keys{
 
 bool is_key_pressed(Key key);
 
+namespace Blending{
+    enum class Factor{
+        Zero                = sf::BlendMode::Zero,
+        One                 = sf::BlendMode::One,
+        Src_color           = sf::BlendMode::SrcColor,
+        One_minus_src       = sf::BlendMode::OneMinusSrcColor,
+        Dst_color           = sf::BlendMode::DstColor,
+        One_minus_dst       = sf::BlendMode::OneMinusDstColor,
+        Src_alpha           = sf::BlendMode::SrcAlpha,
+        One_minus_src_alpha = sf::BlendMode::OneMinusSrcColor,
+        Dst_alpha           = sf::BlendMode::DstAlpha,
+        One_minus_dst_alpha = sf::BlendMode::OneMinusDstColor
+
+    };
+
+    enum class Equation{
+        Add     = sf::BlendMode::Add,
+        Sub     = sf::BlendMode::Subtract,
+        Rev_sub = sf::BlendMode::ReverseSubtract
+    };
+
+}
+
+
+class Blend_mode{
+    public:
+    Blend_mode ();
+    Blend_mode (Blending::Factor src_factor, Blending::Factor dest_factor);
+    Blend_mode (Blending::Factor src_color_factor, Blending::Factor dest_color_factor, Blending::Factor src_alpha_factor, Blending::Factor dest_alpha_factor, Blending::Equation color_eq, Blending::Equation alpha_eq);
+
+
+    const sf::BlendMode& get_mode() const{
+        return mode;
+    }
+
+    private:
+
+    sf::BlendMode mode;
+
+};
+
 
 
 class Click{
@@ -178,17 +219,14 @@ class Drawable_object{
 
     virtual ~Drawable_object ();
 
-    virtual void draw (Window& window, const int x = 0, const int y = 0) = 0;
-    virtual void draw (Texture& texture, const int x = 0, const int y = 0) = 0;
+    virtual void draw (Window& window, const int x = 0, const int y = 0, const Blend_mode& mode = {}) = 0;
+    virtual void draw (Texture& texture, const int x = 0, const int y = 0, const Blend_mode& mode = {}) = 0;
 
     Vector get_position();
 
     virtual void set_position(const int x, const int y);
     virtual void set_position(const Vector& vec);
 
-    friend class Abstract_entity;
-    friend class Square_Molecule;
-    friend class Circle_Molecule;
 
 
     protected:
@@ -203,10 +241,10 @@ class Rectangle : public virtual Drawable_object{
 
     Rectangle ();
     Rectangle (const int x, const int y);
-    Rectangle (const int x, const int y, const int size_x, const int size_y, const Color& col = {255, 0, 0});
+    Rectangle (const int x, const int y, const int size_x, const int size_y, const Color& col = {255, 0, 0}, const int thickness = 0, const Color& outline_color = {0, 0, 0, 255});
 
-    virtual void draw (Window& window, const int x = 0, const int y = 0);
-    virtual void draw (Texture& texture, const int x = 0, const int y = 0);
+    virtual void draw (Window& window, const int x = 0, const int y = 0, const Blend_mode& mode = {});
+    virtual void draw (Texture& texture, const int x = 0, const int y = 0, const Blend_mode& mode = {});
 
 
     void set_size (const int width, const int height);
@@ -227,10 +265,10 @@ class Line :public virtual Drawable_object{
     public:
     Line ();
     Line (const int x, const int y);
-    Line (const int x, const int y, const int size_x, const int size_y, const Color& col = {255, 0, 0});
+    Line (const int x1, const int y1, const int x2, const int y2, const Color& col = {255, 0, 0});
 
-    virtual void draw (Window& window, const int x = 0, const int y = 0);
-    virtual void draw (Texture& texture, const int x = 0, const int y = 0);
+    virtual void draw (Window& window, const int x = 0, const int y = 0, const Blend_mode& mode = {});
+    virtual void draw (Texture& texture, const int x = 0, const int y = 0, const Blend_mode& mode = {});
 
     
 
@@ -252,8 +290,8 @@ class Circle : public virtual Drawable_object{
     Circle ();
     Circle (const int x, const int y, const int radius = 10, const Color& col = {128, 0, 0});
 
-    virtual void draw (Window& window, const int x = 0, const int y = 0);
-    virtual void draw (Texture& texture, const int x = 0, const int y = 0);
+    virtual void draw (Window& window, const int x = 0, const int y = 0, const Blend_mode& mode = {});
+    virtual void draw (Texture& texture, const int x = 0, const int y = 0, const Blend_mode& mode = {});
 
 
     void set_size (const int radius);
@@ -275,8 +313,8 @@ class Text : public virtual Drawable_object{
     Text (const int x, const int y, const std::string& line, const int font_size, const Color& col = {0, 0, 0});
 
 
-    virtual void draw (Window& window, const int x = 0, const int y = 0);
-    virtual void draw (Texture& texture, const int x = 0, const int y = 0);
+    virtual void draw (Window& window, const int x = 0, const int y = 0, const Blend_mode& mode = {});
+    virtual void draw (Texture& texture, const int x = 0, const int y = 0, const Blend_mode& mode = {});
 
     void set_size (const int radius);
     void set_color(const Color& color);
@@ -322,10 +360,26 @@ class Texture{
         texture->clear({0,0,0,0});
     }
 
+    void display(){
+        this->texture->display();
+    }
 
     Vector get_size() const{
         return Vector(this->width, this->height);
     }
+
+    Color* get_array (){
+        display();
+        Color* array = new Color[width * height];
+
+        this->image = this->texture->getTexture().copyToImage();
+        memcpy(array, this->texture->getTexture().copyToImage().getPixelsPtr(), width * height * sizeof(Color));
+        
+        return array;
+    }
+
+    void set_pixels(const Color* data, int x, int y, int width, int height);
+
 
     void fill_color (const Color& color);
 
@@ -335,7 +389,7 @@ class Texture{
     int height;
 
     sf::RenderTexture* texture;
-    
+    sf::Image image;
 
 
 };
@@ -346,8 +400,8 @@ class Sprite : public virtual Drawable_object{
     Sprite (const int x, const int y, const int size_x, const int size_y);
     ~Sprite ();
 
-    virtual void draw (Window& window, const int x = 0, const int y = 0);
-    virtual void draw (Texture& texture, const int x = 0, const int y = 0);
+    virtual void draw (Window& window, const int x = 0, const int y = 0, const Blend_mode& mode = {});
+    virtual void draw (Texture& texture, const int x = 0, const int y = 0, const Blend_mode& mode = {});
 
     void set_size (const int size_x, const int size_y);
 
@@ -355,7 +409,11 @@ class Sprite : public virtual Drawable_object{
 
 
 
-    void set_texture (const Texture& texture);
+    void set_texture (Texture& texture);
+
+    Texture* get_texture (){
+        return this->texture;
+    }
 
     private:
 
@@ -363,7 +421,7 @@ class Sprite : public virtual Drawable_object{
     int height;
 
     sf::Sprite* sprite;
-    
+    Texture* texture;
 
 
 };

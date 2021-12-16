@@ -1,51 +1,22 @@
 #include "palette_widget.hpp"
 #include "window_widget.hpp"
+#include "widget_graphics.hpp"
 
 
-
-double  hue2rgb(float p, float q, float t){
-            if(t < 0) t += 1;
-            if(t > 1) t -= 1;
-            if(6 * t < 1) return p + (q - p) * 6 * t;
-            if(2 * t < 1) return q;
-            if(3 * t < 2) return p + (q - p) * (2./3. - t) * 6;
-            return p;
-        }
-
-
-Color convert_color(float h, float s, float l, int opacity){
-    float R = 0;
-    float G = 0;
-    float B = 0;
-
-    if(s == 0){
-        R = G = B = l; // achromatic
-    }else{
-        
-
-        float q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-        float p = 2 * l - q;
-        R = hue2rgb(p, q, ((float)h) + 1./3.);
-        G = hue2rgb(p, q, ((float)h));
-        B = hue2rgb(p, q, ((float)h) - 1./3.);
-    }
-
-    Color result(R*255, G*255, B*255);
-    result.color.a = opacity;
-    return result;
-}
-
-
-class Update_brush_light_and_saturation{
+class Update_light_and_saturation{
     public:
 
-    void operator() (const Data_for_controller& data, Brush* brush){
+    void operator() (const Data_for_controller& data, Singleton* global_singl){
         printf("update brush color light = %lg saturation = %g\n", data.vector.y, data.vector.x);
         
-        brush->light = data.vector.y;
-        brush->saturation = data.vector.x;
+        global_singl->set_lightness(data.vector.y);
+        global_singl->set_saturation(data.vector.x);
+        global_singl->update_color();
 
-        brush->update_color();
+        // brush->light = data.vector.y;
+        // brush->saturation = data.vector.x;
+
+        // brush->update_color();
 
 
     }
@@ -56,19 +27,29 @@ class Update_brush_light_and_saturation{
 
 
 Palette_widget::Palette_widget (const int x, const int y, const int width, const int height) : 
-    Window_widget(x, y, width, height){
-    
+    Widget_manager(x, y, width, height){
+        
+    Text_widget* pallete_name = new Text_widget (width/2 - 60, 5, "Colour picker", 20, Color(240, 97,86));
+    this->widgets.push_back(pallete_name);
 
-    Saturation_and_lightness_picker* picker = new Saturation_and_lightness_picker (10 , 10 + TOP_BAR_HEIGHT , 300);
+    Saturation_and_lightness_picker* picker = new Saturation_and_lightness_picker (10 , 40 , width - 20);
     this->widgets.push_back(picker);
 
-    Hue_picker* hue_picker = new Hue_picker (10, 20 + TOP_BAR_HEIGHT + 300, 300, 30, picker);
+    Hue_picker* hue_picker = new Hue_picker (10, 40 + width - 20 + 4, width - 20, 30, picker);
     this->widgets.push_back(hue_picker);
 
-    Brush_size_picker* size_picker = new Brush_size_picker (10, TOP_BAR_HEIGHT + 300 + 75, 300, 10);
+    // Text_widget* size_name = new Text_widget (width/2 - 30, 60 + width, "Size", 20, Color(240, 97,86));
+    // this->widgets.push_back(size_name);
+
+    Brush_size_picker* size_picker = new Brush_size_picker (10, 85 + width, width - 20, 30, "Size");
     this->widgets.push_back(size_picker); 
 
-    Opacity_picker* opacity_picker = new Opacity_picker(10, TOP_BAR_HEIGHT + 405, 300, 10);
+    // Text_widget* alpha_name = new Text_widget (width/2 - 70, 100 + width, "Alpha channel", 20, Color(240, 97,86));
+    // this->widgets.push_back(alpha_name);
+
+
+
+    Opacity_picker* opacity_picker = new Opacity_picker(10, 130 + width, width - 20, 30, "Alpha channel");
     this->widgets.push_back(opacity_picker);
 
 }
@@ -83,7 +64,7 @@ Saturation_and_lightness_picker::Saturation_and_lightness_picker (const int x, c
     texture(size, size)
     {
 
-        Controller<Update_brush_light_and_saturation, Brush>* contr = new Controller<Update_brush_light_and_saturation, Brush>(brush); 
+        Controller<Update_light_and_saturation, Singleton>* contr = new Controller<Update_light_and_saturation, Singleton>(global_singleton); 
 
         Slider* slider = new Slider(0, 0, SLIDER_SIZE, SLIDER_SIZE, 0, 0, size, size);
         slider->add_controller(contr);
@@ -160,11 +141,14 @@ class Set_new_hue{
 class Update_brush_hue{
     public:
 
-    void operator() (const Data_for_controller& data, Brush* brush){
+    void operator() (const Data_for_controller& data, Singleton* global_singl){
         printf("update brush color\n");
         
-        brush->hue = data.vector.x;
-        brush->update_color();
+        global_singleton->set_hue(data.vector.x);
+        global_singleton->update_color();
+
+        // brush->hue = data.vector.x;
+        // brush->update_color();
 
     }
 
@@ -179,7 +163,7 @@ Hue_picker::Hue_picker (const int x, const int y, const int width, const int hei
     size_y(height)
     {
         Slider* slider = new Slider(-SLIDER_SIZE/2, -SLIDER_SIZE/2 + height/2, SLIDER_SIZE, SLIDER_SIZE,0, height/2, width, height/2);        
-        Controller<Update_brush_hue, Brush>* contr = new Controller<Update_brush_hue, Brush>(brush); 
+        Controller<Update_brush_hue, Singleton>* contr = new Controller<Update_brush_hue, Singleton>(global_singleton); 
         slider->add_controller(contr);
         
         Controller<Set_new_hue, Saturation_and_lightness_picker>* contr2 = new Controller<Set_new_hue, Saturation_and_lightness_picker>(palette);
@@ -212,37 +196,39 @@ void Hue_picker::draw (const int x, const int y, Window& window){
 }
 
 
-class Set_brush_size{
+class Set_size{
     public:
 
-    void operator() (const Data_for_controller& data, Brush* brush){
+    void operator() (const Data_for_controller& data, Singleton* global_singl){
         printf("set new size\n");
-        brush->set_size(data.vector.x);
+        global_singl->set_size(data.vector.x);
     }
 
 };
 
 
-Brush_size_picker::Brush_size_picker (const int x, const int y, const int width, const int height) :
-    Horizontal_slider_bar(x, y, width, height){
-        this->slider->add_controller(new Controller<Set_brush_size, Brush>(brush));
+Brush_size_picker::Brush_size_picker (const int x, const int y, const int width, const int height, const char* name) :
+    Slider_bar_with_text_box(x, y, width, height, name){
+        this->slider_bar->add_controller(new Controller<Set_size, Singleton>(global_singleton));
 }
 
 
-class Set_brush_opacity{
+class Set_opacity{
     public:
 
-    void operator() (const Data_for_controller& data, Brush* brush){
+    void operator() (const Data_for_controller& data, Singleton* global_singl){
         printf("set new opacity\n");
-        brush->set_opacity(data.vector.x);
+        global_singl->set_opacity(data.vector.x);
+        global_singl->update_color();
+
     }
     
 };
 
 
-Opacity_picker::Opacity_picker (const int x, const int y, const int width, const int height) :
-    Horizontal_slider_bar(x, y, width, height){
-        this->slider->add_controller(new Controller<Set_brush_opacity, Brush>(brush));
+Opacity_picker::Opacity_picker (const int x, const int y, const int width, const int height, const char* name) :
+    Slider_bar_with_text_box(x, y, width, height, name){
+        this->slider_bar->add_controller(new Controller<Set_opacity, Singleton>(global_singleton));
 }
 
 

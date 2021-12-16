@@ -12,9 +12,9 @@
 class Rectangle_widget : public Widget {
     public:
 
-    Rectangle_widget (const int x, const int y, const int size_x, const int size_y, const Color& col = {255, 0, 0}) :
+    Rectangle_widget (const int x, const int y, const int size_x, const int size_y, const Color& col = {255, 0, 0}, const int thickness = 0, const Color& outline_color = {0, 0, 0, 255}) :
         Widget(x, y, size_x, size_y),
-        rect(0, 0, size_x, size_y, col)
+        rect(0, 0, size_x, size_y, col, thickness, outline_color)
     {}
 
     virtual void draw (const int x, const int y, Window& window){
@@ -47,7 +47,14 @@ class Text_widget : public Widget {
     void set_string (const std::string& line){
         this->text.set_string(line);
     }
-   
+    
+    void centering (const int left, const int right){
+        Vector size = text.get_boundings();
+        double offset = (right - left - size.x)/2;
+        
+        this->x = left + offset;
+
+    }
     
     private:
     Text text;

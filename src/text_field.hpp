@@ -8,7 +8,7 @@
 class Text_field : public Widget{
     public:
 
-    Text_field (const int x, const int y, const int width, const int height);
+    Text_field (const int x, const int y, const int width, const int height, const char* line = "Test");
 
     virtual void draw (const int x, const int y, Window& window);
 
@@ -31,6 +31,17 @@ class Text_field : public Widget{
         }
     }
 
+    const char* get_line (){
+        return content.c_str();
+    }
+
+    void set_line (const std::string& line){
+        content = line;
+        cursor_index = 0;
+        update_cursor_position();
+        update_text();
+    }
+
     private:
 
 
@@ -39,6 +50,7 @@ class Text_field : public Widget{
     void move_cursor_left ();
     void move_cursor_right ();
 
+    bool handle_hotkeys (const Event::Keyboard_event& event);
 
 
     void update_cursor_position ();

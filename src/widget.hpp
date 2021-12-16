@@ -4,7 +4,8 @@
 #include <vector>
 #include "graphics_provider.hpp"
 #include "event.hpp"
-
+#include "mouse.hpp"
+#include "keyboard.hpp"
 
 class Widget {
     public:
@@ -61,6 +62,10 @@ class Widget {
         this->mark_for_delete = true;
     }
 
+    void unmark_close(){
+        this->mark_for_delete = false;
+    }
+
     bool is_marked_for_deletion(){
         return this->mark_for_delete;
     }
@@ -113,7 +118,8 @@ class Widget_manager : public Widget {
     public:
 
     Widget_manager (const int x, const int y, const int width, const int height) :
-        Widget(x, y, width, height)
+        Widget(x, y, width, height),
+        is_accept_events(true)
     {}
     
 
@@ -133,6 +139,10 @@ class Widget_manager : public Widget {
 
     void open_image (const std::string& name);
 
+    void set_event_policy(bool rule){
+        this->is_accept_events = rule;
+    }
+
     void register_widget (Widget* wid){
         widgets.push_back(wid);
     }
@@ -141,10 +151,24 @@ class Widget_manager : public Widget {
 
 
     protected:
-    
+    bool is_accept_events;
     std::vector<Widget*> widgets;
 
 };
+
+
+class Widget_event_reciever : public Widget_manager{
+    public:
+    Widget_event_reciever (const int x, const int y, const int width, const int height);
+
+    void run();
+    void set_mouse(Window* window);
+
+    protected:
+    Mouse mouse;
+    Keyboard keyboard;
+};
+
 
 
 
@@ -168,10 +192,15 @@ union Data_for_controller{
         pointer(ptr)
     {}
 
+    Data_for_controller(int value) :
+        int_value(value)
+    {}
+
     Vector vector;
     double value;
     const void* const_pointer;
     void* pointer;
+    int int_value;
 
 };
 
@@ -214,12 +243,32 @@ class Move_widget{
 
 };
 
+class Set_accept_events{
+    public:
 
-template<typename Func, typename Widget_name>
+    void operator() (const Data_for_controller& data, Widget_manager* widget){
+        // printf("mark for future closing %p\n", widget);
+        widget->set_event_policy(true);
+    }
+
+};
+
+class Set_refuse_events{
+    public:
+
+    void operator() (const Data_for_controller& data, Widget_manager* widget){
+        // printf("mark for future closing %p\n", widget);
+        widget->set_event_policy(false);
+    }
+
+};
+
+
+template<typename Func, typename Reciever>
 class Controller: public Abstract_controller {
     public:
 
-    Controller (Widget_name* widget) :
+    Controller (Reciever* widget) :
         widget(widget)
     {}
 
@@ -232,7 +281,7 @@ class Controller: public Abstract_controller {
 
     private:
 
-    Widget_name* widget;
+    Reciever* widget;
 
 };
 

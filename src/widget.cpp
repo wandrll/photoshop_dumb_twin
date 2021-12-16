@@ -1,4 +1,5 @@
 #include "widget.hpp"
+#include <ctime>
 
 bool Widget::on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event){
     return false;    
@@ -34,6 +35,10 @@ void Widget_manager::draw (const int x, const int y, Window& window){
 
 
 bool Widget_manager::on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event){
+    if (!is_accept_events){
+        return false;
+    }
+
     int size = widgets.size();
     bool res = false;
 
@@ -54,6 +59,10 @@ bool Widget_manager::on_mouse_press (const int x, const int y, const Event::Left
 }
 
 bool Widget_manager::on_mouse_release (const int x, const int y, const Event::Mouse_release& event){
+    if (!is_accept_events){
+        return false;
+    }
+
     int size = widgets.size();
     bool res = false;
 
@@ -69,6 +78,10 @@ bool Widget_manager::on_mouse_release (const int x, const int y, const Event::Mo
 }
 
 bool Widget_manager::on_mouse_pressed_move (const int x, const int y, const Event::Mouse_pressed_move& event){
+    if (!is_accept_events){
+        return false;
+    }
+
     int size = widgets.size();
     bool res = false;
 
@@ -83,6 +96,10 @@ bool Widget_manager::on_mouse_pressed_move (const int x, const int y, const Even
 }
 
 bool Widget_manager::on_mouse_released_move (const int x, const int y, const Event::Mouse_released_move& event){
+    if (!is_accept_events){
+        return false;
+    }
+
     int size = widgets.size();
     bool res = false;
 
@@ -96,6 +113,10 @@ bool Widget_manager::on_mouse_released_move (const int x, const int y, const Eve
 }
 
 bool Widget_manager::on_right_mouse_press (const int x, const int y, const Event::Right_Mouse_press& event){
+    if (!is_accept_events){
+        return false;
+    }
+
     int size = widgets.size();
     bool res = false;
 
@@ -109,6 +130,10 @@ bool Widget_manager::on_right_mouse_press (const int x, const int y, const Event
 }
 
 bool Widget_manager::on_keyboard (const Event::Keyboard_event& event){
+    if (!is_accept_events){
+        return false;
+    }
+    
     int size = widgets.size();
     bool res = false;
 
@@ -162,4 +187,89 @@ void Widget_manager::open_image (const std::string& name){
     canv->load_image(name);
     this->widgets.push_back(canv);
     //app.register_widget(canv);
+}
+
+
+Widget_event_reciever::Widget_event_reciever (const int x, const int y, const int width, const int height) :
+        Widget_manager(x, y, width, height),
+        mouse(global_singleton->get_window())
+{}
+
+void Widget_event_reciever::run(){
+    // Widget* main_widget = global_singleton->get_main_widget();
+    Texture clear_texture(width, height);
+    clear_texture.fill_color({32, 32, 32});
+    
+    Sprite clear_sprite;
+    clear_sprite.set_texture(clear_texture);
+
+    // clear_texture.clear(Color(32, 32, 32, 255));
+    clear_sprite.set_position(x, y);
+    clear_sprite.set_size(width, height);
+
+    Blend_mode mode(Blending::Factor::One, Blending::Factor::Zero);
+
+
+    Event::Left_Mouse_press mouse_press;
+    Event::Mouse_release mouse_release;
+    Event::Mouse_pressed_move mouse_pressed_move;
+    Event::Mouse_released_move mouse_released_move;
+    Event::Right_Mouse_press mouse_right_press;
+    Event::Keyboard_event keyboard_event;
+    clock_t curr = clock();
+    clock_t prev = curr;
+    while(true){
+        prev = curr;
+        curr = clock();
+        
+        global_singleton->get_tools()->get_tool()->on_tick(((double)(curr - prev))/CLOCKS_PER_SEC);
+        // global_singleton->get_window()->clear();
+
+        clear_sprite.draw(*(global_singleton->get_window()), x, y, mode);
+
+        Widget_manager::draw(0, 0, *(global_singleton->get_window()));
+        
+        global_singleton->get_window()->display();
+
+        update();
+        mouse.update();
+        keyboard.update();
+
+        if (this->mouse.get_press_event(mouse_press)){
+            mouse_press.print();
+            on_mouse_press(0, 0, mouse_press);
+        }
+        if (this->mouse.get_right_press_event(mouse_right_press)){
+            mouse_press.print();
+            on_right_mouse_press(0, 0, mouse_right_press);
+        }
+        
+        if (this->mouse.get_release_event(mouse_release)){
+            mouse_release.print();
+            on_mouse_release(0, 0, mouse_release);
+        }
+        
+        if (this->mouse.get_press_move_event(mouse_pressed_move)){
+            mouse_pressed_move.print();
+            on_mouse_pressed_move(0, 0, mouse_pressed_move);
+        }
+        
+        if (this->mouse.get_release_move_event(mouse_released_move)){
+            mouse_released_move.print();
+            on_mouse_released_move(0, 0, mouse_released_move);
+        }
+        if (this->keyboard.poll_event(keyboard_event)){
+            keyboard_event.print();
+            on_keyboard(keyboard_event);
+        }
+        // if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)){
+            // mark_close();
+        // }
+        if(this->mark_for_delete){
+            break;
+        }
+    }
+}
+void Widget_event_reciever::set_mouse(Window* window){
+    this->mouse = Mouse(window);
 }

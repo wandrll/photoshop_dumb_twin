@@ -1,5 +1,6 @@
 #include "graphics_provider.hpp"
 
+
 Color::Color () :
         color(sf::Color::Cyan) {}
 
@@ -85,7 +86,7 @@ Rectangle::Rectangle (const int x, const int y) :
         height(100)
         {}
 
-Rectangle::Rectangle (const int x, const int y, const int size_x, const int size_y, const Color& col) : 
+Rectangle::Rectangle (const int x, const int y, const int size_x, const int size_y, const Color& col, const int thickness, const Color& outline_color) : 
         Drawable_object(x, y),
         width(size_x),
         height(size_y),
@@ -93,30 +94,32 @@ Rectangle::Rectangle (const int x, const int y, const int size_x, const int size
         shape()
         {
                 this->shape.setFillColor(col.color);
+                this->shape.setOutlineThickness(thickness);
+                this->shape.setOutlineColor(outline_color.color);
                 this->shape.setPosition(x, y);
                 this->shape.setSize({size_x, size_y});
         }
 
 
 
-void Rectangle::draw (Window& window, const int x, const int y){
+void Rectangle::draw (Window& window, const int x, const int y, const Blend_mode& mode){
         // sf::RectangleShape shape;
         // shape.setFillColor(this->color.color);
         // shape.setPosition(this->position.x + x, this->position.y + y);
         // shape.setSize({this->width, this->height});
         this->shape.setPosition({this->position.x + x, this->position.y + y});
-        window.get_win_ptr()->draw(this->shape);
+        window.get_win_ptr()->draw(this->shape, sf::RenderStates(mode.get_mode()));
 }
 
 
-void Rectangle::draw (Texture& texture, const int x, const int y){
+void Rectangle::draw (Texture& texture, const int x, const int y, const Blend_mode& mode){
         // sf::RectangleShape shape;
         // shape.setFillColor(this->color.color);
         // shape.setPosition(this->position.x + x, this->position.y + y);
         // shape.setSize({this->width, this->height});
         this->shape.setPosition({this->position.x + x, this->position.y + y});
 
-        texture.get_texture_prt()->draw(this->shape);
+        texture.get_texture_prt()->draw(this->shape, sf::RenderStates(mode.get_mode()));
 }
 
 
@@ -129,6 +132,8 @@ void Rectangle::draw (Texture& texture, const int x, const int y){
 void Rectangle::set_color (const Color& color){
         this->color = color;
         this->shape.setFillColor(color.color);
+        this->shape.setOutlineColor(color.color);
+
 }
 
 void Rectangle::set_size(const int width, const int height){
@@ -168,30 +173,31 @@ void Circle::set_size(const int radius){
 
 
 
-void Circle::draw(Window& window, const int x, const int y){
+void Circle::draw(Window& window, const int x, const int y, const Blend_mode& mode){
         sf::CircleShape shape;
         shape.setFillColor(this->color.color);
-        
+        shape.setOutlineColor(color.color);
+
 
         shape.setPosition(this->position.x + x, this->position.y + y);
         shape.setRadius(this->radius);
 
-        window.get_win_ptr()->draw(shape);
+        window.get_win_ptr()->draw(shape, sf::RenderStates(mode.get_mode()));
 
 }
 
-void Circle::draw(Texture& texture, const int x, const int y){
+void Circle::draw(Texture& texture, const int x, const int y, const Blend_mode& mode){
         sf::CircleShape shape;
         // this->color.color.a = 64;
         shape.setFillColor(this->color.color);
-
+        shape.setOutlineColor(color.color);
        sf::Color tmp_col = shape.getFillColor();
         // printf("color = %d %d %d %d\n", tmp_col.r, tmp_col.g, tmp_col.b, tmp_col.a);
        
         shape.setPosition(this->position.x + x, this->position.y + y);
         shape.setRadius(this->radius);
 
-        texture.get_texture_prt()->draw(shape);
+        texture.get_texture_prt()->draw(shape, sf::RenderStates(mode.get_mode()));
 
 }
 
@@ -212,24 +218,25 @@ Text::Text (const int x, const int y, const std::string& line, const int font_si
         text.setString(line);
         text.setCharacterSize(this->font_size);
         text.setFillColor(this->color.color);
+        text.setOutlineColor(this->color.color);
 }
 
 
 
 
 
-void Text::draw (Window& window, const int x, const int y){
+void Text::draw (Window& window, const int x, const int y, const Blend_mode& mode){
 
 
         text.setPosition(this->position.x + x, this->position.y + y);
-        window.get_win_ptr()->draw(text);
+        window.get_win_ptr()->draw(text, sf::RenderStates(mode.get_mode()));
 
 }
 
-void Text::draw (Texture& texture, const int x, const int y){
+void Text::draw (Texture& texture, const int x, const int y, const Blend_mode& mode){
 
         text.setPosition(this->position.x + x, this->position.y + y);
-        texture.get_texture_prt()->draw(text);
+        texture.get_texture_prt()->draw(text, sf::RenderStates(mode.get_mode()));
 
 }
 
@@ -271,7 +278,7 @@ Line::Line (const int x1, const int y1, const int x2, const int y2, const Color&
         color(col)
 {}
 
-void Line::draw (Window& window, const int x, const int y){
+void Line::draw (Window& window, const int x, const int y, const Blend_mode& mode){
         double length = (second_position - position).length();
     
         sf::RectangleShape rectangle;
@@ -284,12 +291,12 @@ void Line::draw (Window& window, const int x, const int y){
         double angle = atan2(second_position.y - position.y, second_position.x - position.x) / M_PI * 180;
         rectangle.rotate(angle);
         
-        window.get_win_ptr()->draw(rectangle);
+        window.get_win_ptr()->draw(rectangle, sf::RenderStates(mode.get_mode()));
 
 }
 
 
-void Line::draw (Texture& texture, const int x, const int y){
+void Line::draw (Texture& texture, const int x, const int y, const Blend_mode& mode){
         double length = (second_position - position).length();
     
         sf::RectangleShape rectangle;
@@ -302,7 +309,7 @@ void Line::draw (Texture& texture, const int x, const int y){
         double angle = atan2(second_position.y - position.y, second_position.x - position.x) / M_PI * 180;
         rectangle.rotate(angle);
         
-        texture.get_texture_prt()->draw(rectangle);
+        texture.get_texture_prt()->draw(rectangle, sf::RenderStates(mode.get_mode()));
 
 }
 
@@ -335,9 +342,11 @@ Texture::Texture (const int size_x, const int size_y):
                 this->texture->create(size_x, size_y);
                 sf::RectangleShape rect;
                 rect.setFillColor(sf::Color::White);
+                rect.setOutlineColor(sf::Color::White);
                 rect.setPosition(0,0);
                 rect.setSize({size_x, size_y});
                 this->texture->draw(rect);
+                this->image = this->texture->getTexture().copyToImage();
         }
 
 
@@ -360,10 +369,23 @@ bool Texture::load_from_file (const std::string& filename){
     sprite.setTexture(tmp_texture);
     
     this->texture->draw(sprite);
+    this->image = this->texture->getTexture().copyToImage();
     return true;
 }
 
 
+void Texture::set_pixels(const Color* data, int x, int y, int width, int height){
+        sf::Texture textr;
+        textr.create(width, height);
+        textr.update((const sf::Uint8*)(data));
+
+        sf::Sprite sprite;
+        sprite.setTexture(textr);
+        sprite.setPosition(x, y);
+        
+        this->texture->draw(sprite, sf::BlendMode(sf::BlendMode::Factor::One, sf::BlendMode::Factor::Zero));
+        this->texture->display();
+}
 
 
 
@@ -387,7 +409,8 @@ Sprite::Sprite ():
         Drawable_object(0, 0),
         width(0),
         height(0),
-        sprite(new sf::Sprite)
+        sprite(new sf::Sprite),
+        texture(nullptr)
 {}
 
 Sprite::Sprite (const int x, const int y, const int size_x, const int size_y) :
@@ -402,25 +425,28 @@ Sprite::~Sprite (){
 }
 
 
-void Sprite::draw (Window& window, const int x, const int y){
+void Sprite::draw (Window& window, const int x, const int y, const Blend_mode& mode){
+        this->texture->display();
+
         // int orig_x = this->position.x;
         // int orig_y = this->position.y;
-        this->sprite->setPosition(x, y + this->height);
+        this->sprite->setPosition(x, y);
 
-        window.get_win_ptr()->draw(*(this->sprite));
+        window.get_win_ptr()->draw(*(this->sprite), sf::RenderStates(mode.get_mode()));
 
         // this->sprite->setPosition(orig_x, orig_y);
 }
 
-void Sprite::draw (Texture& texture, const int x, const int y){
+void Sprite::draw (Texture& texture, const int x, const int y, const Blend_mode& mode){
+        this->texture->display();
         // int orig_x = this->position.x;
         // int orig_y = this->position.y;
         // this->sprite->setPosition(x + orig_x, y + orig_y);
-        this->sprite->setPosition(x, y + this->height);
+        this->sprite->setPosition(x, y);
 
         
 
-        texture.get_texture_prt()->draw(*(this->sprite));
+        texture.get_texture_prt()->draw(*(this->sprite), sf::RenderStates(mode.get_mode()));
         // this->sprite->setPosition(orig_x, orig_y);
 }
 
@@ -428,11 +454,11 @@ void Sprite::draw (Texture& texture, const int x, const int y){
 
 
 
-void Sprite::set_texture (const Texture& texture){
+void Sprite::set_texture (Texture& texture){
     this->sprite->setTexture(texture.get_texture_prt()->getTexture());
-
+    this->texture = &texture;
     Vector size = texture.get_size();
-    this->sprite->scale(1, -1);
+//     this->sprite->scale(1, -1);
 
     this->width = size.x;
     this->height = size.y;
@@ -448,17 +474,22 @@ void Sprite::set_texture (const Texture& texture){
 
 void Sprite::set_size (const int size_x, const int size_y){
     this->position.y -= this->height;
+    
+    if (this->width == 0 || this->height == 0){
+        return;
+    }
+
 
     this->sprite->scale(((double)size_x)/((double)this->width), ((double)size_y)/((double)this->height));
     this->width = size_x;
     this->height = size_y;
 
-    this->position.y += this->height;
+//     this->position.y += this->height;
 }
 
 void Sprite::set_position (const int x, const int y){
     this->position.x = x;
-    this->position.y = y + this->height;
+    this->position.y = y;
     
     this->sprite->setPosition(x,y);
 }
@@ -470,6 +501,24 @@ bool is_key_pressed(Key key){
 
 
 
+
+Blend_mode::Blend_mode () : 
+        mode()
+{}
+
+
+Blend_mode::Blend_mode (Blending::Factor src_factor, Blending::Factor dst_factor) : 
+        mode(sf::BlendMode::Factor(src_factor),  sf::BlendMode::Factor(dst_factor))
+{}
+
+Blend_mode::Blend_mode (Blending::Factor src_color_factor, Blending::Factor dest_color_factor, Blending::Factor src_alpha_factor, Blending::Factor dest_alpha_factor, Blending::Equation color_eq, Blending::Equation alpha_eq) : 
+        mode(sf::BlendMode::Factor(src_color_factor),
+             sf::BlendMode::Factor(dest_color_factor),
+             sf::BlendMode::Equation(color_eq),
+             sf::BlendMode::Factor(src_alpha_factor),
+             sf::BlendMode::Factor(dest_alpha_factor),
+             sf::BlendMode::Equation(alpha_eq)){
+}
 
 
 

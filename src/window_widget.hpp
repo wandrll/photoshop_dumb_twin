@@ -11,7 +11,7 @@ class Window_widget : public Widget_manager{
     public:
     Window_widget (const int x, const int y, const int width, const int height);
 
-    ~Window_widget ();
+    virtual ~Window_widget ();
 
     virtual void draw (const int x, const int y, Window& window);
     // virtual bool handle_event(const int x, const int y, const Event& event);

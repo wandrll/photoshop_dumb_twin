@@ -1,11 +1,12 @@
 
 
 #include "sprite_widget.hpp"
+#include "singleton.hpp"
 
-extern Resource_handler handler;
+extern Singleton* global_singleton;
 
 void Widget_sprite::draw (const int x, const int y, Window& window){
-    Sprite* sprite = handler.get_sprite(this->sprite_id);
+    Sprite* sprite = global_singleton->get_resource_handler()->get_sprite(this->sprite_id);
     sprite->set_position(this->x, this->y);
     sprite->set_size(this->width, this->height);
     

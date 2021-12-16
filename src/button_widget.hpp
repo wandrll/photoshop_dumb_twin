@@ -8,11 +8,12 @@
 class Rectangle_Button : public Widget{
     public:
 
-    Rectangle_Button (const int x, const int y, const int size_x, const int size_y) :
+    Rectangle_Button (const int x, const int y, const int size_x, const int size_y, const int id = -1) :
         Widget(x, y, size_x, size_y),
         controller(NULL),
         is_pressed(false),
-        regular_button(NULL)
+        regular_button(NULL),
+        id(id)
     {}
 
     virtual ~Rectangle_Button (){
@@ -47,7 +48,7 @@ class Rectangle_Button : public Widget{
         if(is_pressed){
             for (int i = 0; i < this->controller.size(); i++){
                 
-                (*this->controller[i])({});
+                (*this->controller[i])(Data_for_controller(id));
                 
             }
             is_pressed = false;
@@ -70,9 +71,28 @@ class Rectangle_Button : public Widget{
     std::vector<Abstract_controller*> controller;
     bool is_pressed;
 
+    int id;
+
 };
 
 
+class Text_button : public Rectangle_Button {
+    public:
+    Text_button (const int x, const int y, const int size_x, const int size_y, const char* line, const int font_size, const Color& text_color, const Color& background_color, const int id = -1) :
+            Rectangle_Button (x, y, size_x, size_y, id){
+        Widget_manager* widget = new Widget_manager(0, 0, size_x, size_y);
+
+        Rectangle_widget* back = new Rectangle_widget(0, 0, size_x, size_y, background_color);
+        Text_widget* text = new Text_widget (+3, -3, line, font_size, text_color);
+
+        widget->register_widget(back);
+        widget->register_widget(text);
+
+        this->regular_button = widget;
+    }
+
+
+};
 
 
 

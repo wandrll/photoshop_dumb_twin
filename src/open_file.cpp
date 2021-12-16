@@ -2,9 +2,12 @@
 
 
 Open_file_widget::Open_file_widget (const int x, const int y, const int width, const int height, Widget_manager* widget) :
-        Window_widget(x, y, width, height),
+        Widget_event_reciever(x, y, width, height),
         parent(this)
 {
+    Rectangle_widget* background = new Rectangle_widget (0, 0, width, height, Color(255, 255, 255, 0), BORDER_THICKNESS, BORDER_COLOR);
+    this->widgets.push_back(background);
+
     Text_field* text_field = new Text_field(10, 10 + TOP_BAR_HEIGHT, width - 20, 30);
 
     Controller<Open, Widget_manager>* control = new Controller<Open, Widget_manager>(widget);

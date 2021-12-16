@@ -7,9 +7,9 @@
 #include "canvas_window.hpp"
 #include "window_widget.hpp"
 
+extern Singleton* global_singleton;
 
-
-class Palette_widget : public Window_widget {
+class Palette_widget : public Widget_manager {
     public:
 
     Palette_widget (const int x, const int y, const int width, const int height);
@@ -75,20 +75,20 @@ class Hue_picker : public Widget_manager {
 
 
 
-class Brush_size_picker : public Horizontal_slider_bar {
+class Brush_size_picker : public Slider_bar_with_text_box {
     public:
 
-    Brush_size_picker (const int x, const int y, const int width, const int height);
+    Brush_size_picker (const int x, const int y, const int width, const int height, const char* name);
 
     private:
 
 };
 
 
-class Opacity_picker : public Horizontal_slider_bar {
+class Opacity_picker : public Slider_bar_with_text_box {
     public:
 
-    Opacity_picker (const int x, const int y, const int width, const int height);
+    Opacity_picker (const int x, const int y, const int width, const int height, const char* name);
 
     private:
 

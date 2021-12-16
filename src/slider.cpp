@@ -1,4 +1,6 @@
 #include "slider.hpp"
+#include "settings.hpp"
+#include "widget_graphics.hpp"
 
 Slider::Slider(const int x, const int y, const int width, const int height, const int left_x_limit, const int top_y_limit, const int right_x_limit, const int bottom_y_limit) :
     Widget_manager(x, y, width, height),
@@ -60,7 +62,7 @@ bool Slider::on_mouse_pressed_move (const int x, const int y, const Event::Mouse
 
         this->set_coordinats({c_x, c_y});
 
-        proceed_controllers(get_value());
+        proceed_controllers();
 
         return true;
     }
@@ -69,9 +71,10 @@ bool Slider::on_mouse_pressed_move (const int x, const int y, const Event::Mouse
     
 
 
-void Slider::proceed_controllers(const Data_for_controller& data){
+void Slider::proceed_controllers(){
+    Data_for_controller data(get_value());
     for (int i = 0; i < this->controller.size(); i++){
-        (*this->controller[i])(Data_for_controller(get_value()));
+        (*this->controller[i])(data);
     }
 
 }
@@ -97,3 +100,68 @@ Horizontal_slider_bar::Horizontal_slider_bar (int x, int y, int width, int heigh
 }
 
 
+class Set_value_in_slyder{
+    public:
+
+    void operator() (const Data_for_controller& data, Slider* slider){
+        double value = ((double)atoi((const char*)(data.const_pointer))) / 100.;
+
+        if (value > 1){
+            value = 1;
+        }
+        if (value < 0){
+            value = 0;
+        }
+
+        slider->set(Vector(value, 0));
+        slider->proceed_controllers();
+    }
+    
+};
+
+
+class Set_line_in_text_field_from_slider{
+    public:
+
+    void operator() (const Data_for_controller& data, Text_field* text_field){
+        int value = data.vector.x * 100;
+        
+        text_field->set_line(std::to_string(value));
+
+    }
+    
+};
+
+
+
+
+Slider_bar_with_text_box::Slider_bar_with_text_box (const int x, const int y, const int width, const int height, const char* name) :
+        Widget_manager (x, y, width, height){
+    
+        
+    Rectangle_widget* frame = new Rectangle_widget (0, 0, width, height, Color(0, 0, 0, 0), 2, Color(0 ,0 ,0, 255));
+    this->widgets.push_back(frame);
+
+
+
+    Text_widget* text = new Text_widget (0 ,-5 , name, 2 * height / 3, FONT_COLOR);
+    text->centering(0, width); 
+    this->widgets.push_back(text);
+
+    Horizontal_slider_bar* slider_bar = new Horizontal_slider_bar (0, 2 * height / 3, width - 100, height / 3);
+    Text_field* text_field = new Text_field (width - 90, 0, 90, height, "0");
+
+    Controller<Set_value_in_slyder, Slider>* control = new Controller<Set_value_in_slyder, Slider>(slider_bar->get_slider()); 
+    text_field->add_controller(control);
+
+    Controller<Set_line_in_text_field_from_slider, Text_field>* control2 = new Controller<Set_line_in_text_field_from_slider, Text_field>(text_field); 
+    slider_bar->add_controller(control2);
+
+
+    this->widgets.push_back(slider_bar);
+    this->widgets.push_back(text_field);
+
+    this->slider_bar = slider_bar;
+    this->text_field = text_field;
+
+}

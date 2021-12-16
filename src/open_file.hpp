@@ -7,7 +7,7 @@
 #include "window_widget.hpp"
 
 
-class Open_file_widget : public Window_widget{
+class Open_file_widget : public Widget_event_reciever{
     public:
 
     Open_file_widget (const int x, const int y, const int width, const int height, Widget_manager* widget);

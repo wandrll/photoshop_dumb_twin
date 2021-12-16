@@ -1,29 +1,24 @@
 #include "canvas_window.hpp"
 
 
-void Brush::draw (const int x, const int y, Layer* layer){
-    this->circle.set_position(x - this->brush_size/2, y - this->brush_size/2);
-    this->circle.draw(*(layer->get_texture()));
-}
-
-
-
-
 Layer::Layer (const int x, const int y, const int width, const int height) :
     Widget(x, y, width, height),
-    texture(width, height)
+    texture(width, height),
+    preview_texture(width, height),
+    texture_to_draw(width, height)
 {
     texture.clear();
+    preview_texture.clear();
+    texture_to_draw.clear();
 }
 
 
 void Layer::draw (const int x, const int y, Window& window){
     
     Sprite sprite;
-    sprite.set_texture(this->texture);
-    
-    
+    sprite.set_texture(this->texture_to_draw);
     sprite.draw(window, this->x + x, this->y + y);
+
 }
 
 void Layer::load_image(const std::string name){
@@ -32,38 +27,19 @@ void Layer::load_image(const std::string name){
     
     Sprite sprite(0, 0, this->width, this->height);
     sprite.set_texture(texture);
-
     sprite.set_size(this->width, this->height);
-
-    sprite.draw(this->texture);
-}
-
-
-static void draw_continuously (const Move& move_coords, Layer* layer, const int offset_x, const int offset_y){
-    Vector move = move_coords.get_move_vector();
     
-    int x = move_coords.end_move.x - move_coords.begin_move.x;
-    int y = move_coords.end_move.y - move_coords.begin_move.y;
+    
 
-    int cnt = std::max(abs(x), abs(y));
-    // printf("cnt = %d\n", cnt);
-    if(cnt < 1){
-        return;
-    }
-
-    double deltax = ((double)x) / ((double)cnt);
-    double deltay = ((double)y) / ((double)cnt);
+    sprite.draw(this->texture, 0, 0, Blend_mode(Blending::Factor::One, Blending::Factor::Zero));
 
 
-    for (int i = 0; i < cnt; i++){
-        brush->draw(move_coords.begin_move.x + i * deltax - offset_x, move_coords.begin_move.y + i * deltay - offset_y, layer);
-    }
-
-
-
-
+    update_texture_to_draw({});
 
 }
+
+
+
 
 
 
@@ -91,7 +67,16 @@ Layer_manager_widget::~Layer_manager_widget (){
 bool Layer_manager_widget::on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event){
     if (is_in_widget(x, y, event.click)){
 
-            brush->draw(event.click.x - this->x - x, event.click.y - this->y - y, this->get_active_layer());
+            Abstract_tool* curr_tool = global_singleton->get_tools()->get_tool(); 
+
+            global_singleton->set_layer(this->get_active_layer());
+            curr_tool->update();
+            curr_tool->on_press(Vector(event.click.x - this->x - x, event.click.y - this->y - y));
+
+            get_active_layer()->update_texture_to_draw(curr_tool->merge_mode);
+
+            // global_singleton->get_layer()->update_texture_to_draw(curr_tool->merge_mode);
+
             this->is_active = true;
         return true;
     }
@@ -101,9 +86,17 @@ bool Layer_manager_widget::on_mouse_press (const int x, const int y, const Event
 bool Layer_manager_widget::on_mouse_pressed_move (const int x, const int y, const Event::Mouse_pressed_move& event){
     if (this->is_active){
         printf("brrrrrrrrrrrrrrr\n");
-            brush->draw(event.move.begin_move.x - this->x - x, event.move.begin_move.y - this->y - y, this->get_active_layer());
 
-            draw_continuously(event.move, this->get_active_layer(), this->x + x, this->y + y);
+            Abstract_tool* curr_tool = global_singleton->get_tools()->get_tool(); 
+
+
+            curr_tool->on_move(Vector(event.move.begin_move.x - this->x - x, event.move.begin_move.y - this->y - y),
+                                                   Vector(event.move.end_move.x   - this->x - x, event.move.end_move.y   - this->y - y));
+            
+            get_active_layer()->update_texture_to_draw(curr_tool->merge_mode);
+
+            // global_singleton->get_layer()->update_texture_to_draw(curr_tool->merge_mode);
+
         return true;
     }
     
@@ -113,8 +106,21 @@ bool Layer_manager_widget::on_mouse_pressed_move (const int x, const int y, cons
 
 
 bool Layer_manager_widget::on_mouse_release (const int x, const int y, const Event::Mouse_release& event){
-    this->is_active = false;
+    Layer* layer = global_singleton->get_layer();
+    if (layer != nullptr){ 
+        
+        Abstract_tool* curr_tool = global_singleton->get_tools()->get_tool(); 
+        
+        curr_tool->on_release(Vector(event.click.x - this->x - x, event.click.y - this->y - y));
+
+        layer->merge_with_preview(curr_tool->merge_mode);
+
+        layer->update_texture_to_draw({});
+
+        this->is_active = false;
+    }
     return true;
+
 }
 
     
@@ -137,23 +143,6 @@ void Layer_manager_widget::next_layer (){
 }
 
 
-class Text_button : public Rectangle_Button {
-    public:
-    Text_button (const int x, const int y, const int size_x, const int size_y, const char* line, const int font_size, const Color& text_color, const Color& background_color) :
-            Rectangle_Button (x, y, size_x, size_y){
-        Widget_manager* widget = new Widget_manager(0, 0, size_x, size_y);
-
-        Rectangle_widget* back = new Rectangle_widget(0, 0, size_x, size_y, background_color);
-        Text_widget* text = new Text_widget (0, 0, line, font_size, text_color);
-
-        widget->register_widget(back);
-        widget->register_widget(text);
-
-        this->regular_button = widget;
-    }
-
-
-};
 
 
 

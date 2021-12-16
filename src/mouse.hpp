@@ -21,6 +21,10 @@ public:
         window(win)
     {}
 
+    Mouse ():
+        window(nullptr)
+    {}
+    
     void update();
 
     bool get_press_event        (Event::Left_Mouse_press& event);

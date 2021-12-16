@@ -24,4 +24,7 @@ class Keyboard{
 };
 
 
+
+std::string get_string_from_clipboard();
+
 #endif

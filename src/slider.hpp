@@ -3,6 +3,7 @@
 
 #include "widget.hpp"
 #include "sprite_widget.hpp"
+#include "text_field.hpp"
 
 class Slider : public Widget_manager{
     public:
@@ -23,11 +24,18 @@ class Slider : public Widget_manager{
 
     virtual bool on_mouse_pressed_move (const int x, const int y, const Event::Mouse_pressed_move& event);
     
-    void proceed_controllers(const Data_for_controller& data);
+    void proceed_controllers();
 
     void add_controller(Abstract_controller* controller){
         this->controller.push_back(controller);
     }
+
+    void set (const Vector& value){
+        this->x = left_x_limit + value.x * (right_x_limit  - left_x_limit) - this->width / 2;
+        this->y = top_y_limit  + value.y * (bottom_y_limit - top_y_limit ) - this->height / 2;
+
+    }
+
 
     Vector get_value() const{
         double x = 0;
@@ -64,6 +72,13 @@ class Horizontal_slider_bar : public Widget_manager{
         this->slider->add_controller(control);
     }
 
+    void proceed_controllers (){
+        this->slider->proceed_controllers();
+    }
+
+    Slider* get_slider(){
+        return slider;
+    }
 
     protected:
     Slider* slider;
@@ -71,6 +86,24 @@ class Horizontal_slider_bar : public Widget_manager{
 
 
 };
+
+
+class Slider_bar_with_text_box : public Widget_manager{
+    public:
+
+    Slider_bar_with_text_box (const int x, const int y, const int width, const int height, const char* name = " ");
+
+    void add_controller (Abstract_controller* control){
+        this->slider_bar->add_controller(control);
+    }
+
+    protected:
+    Horizontal_slider_bar* slider_bar;
+    Text_field* text_field;
+
+
+};
+
 
 
 #endif
