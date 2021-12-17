@@ -14,7 +14,7 @@ class Widget_sprite : public Widget{
         // printf("x = %d y = %d\n", this->x, this->y);
     }
 
-    virtual void draw (const int x, const int y, Window& window);
+    virtual void draw (const int x, const int y, Texture& window);
 
 
    

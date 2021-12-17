@@ -20,7 +20,7 @@ class Layer : public Widget {
     public:
     Layer (const int x, const int y, const int width, const int height);
 
-    virtual void draw (const int x, const int y, Window& window);
+    virtual void draw (const int x, const int y, Texture& window);
     // virtual bool handle_event(const int x, const int y, const Event& event);
 
     void load_image(const std::string name);
@@ -86,7 +86,7 @@ class Layer_manager_widget : public Widget_manager {
     virtual bool on_mouse_pressed_move (const int x, const int y, const Event::Mouse_pressed_move& event);
     virtual bool on_mouse_release (const int x, const int y, const Event::Mouse_release& event);
     
-    virtual void draw (const int x, const int y, Window& window);
+    virtual void draw (const int x, const int y, Texture& window);
 
 
     void add_layer ();

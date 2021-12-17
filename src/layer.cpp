@@ -13,7 +13,7 @@ Layer::Layer (const int x, const int y, const int width, const int height) :
 }
 
 
-void Layer::draw (const int x, const int y, Window& window){
+void Layer::draw (const int x, const int y, Texture& window){
     
     Sprite sprite;
     sprite.set_texture(this->texture_to_draw);
@@ -124,7 +124,7 @@ bool Layer_manager_widget::on_mouse_release (const int x, const int y, const Eve
 }
 
     
-void Layer_manager_widget::draw (const int x, const int y, Window& window){
+void Layer_manager_widget::draw (const int x, const int y, Texture& window){
     Widget_manager::draw (x, y, window);
 
     for (int i = 0; i < layers.size(); i++){

@@ -15,7 +15,7 @@ class Button_list : public Widget_manager{
     void add_button (Rectangle_Button* button);
     virtual bool on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event);
 
-    virtual void draw (const int x, const int y, Window& window){
+    virtual void draw (const int x, const int y, Texture& window){
         if (is_accept_events){
             Widget_manager::draw(x, y, window);
         }

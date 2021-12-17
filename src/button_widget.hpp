@@ -61,7 +61,7 @@ class Rectangle_Button : public Widget{
     }
 
 
-    virtual void draw (const int x, const int y, Window& window){
+    virtual void draw (const int x, const int y, Texture& window){
         regular_button->draw(x + this->x, y + this->y, window);
     }
 
@@ -128,7 +128,7 @@ class Hover_rectangle_button : public Rectangle_Button{
     }
 
 
-    virtual void draw (const int x, const int y, Window& window){
+    virtual void draw (const int x, const int y, Texture& window){
         if (is_hovered && hovered_button){
             hovered_button->draw(x + this->x, y + this->y, window);
         }else{

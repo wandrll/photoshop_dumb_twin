@@ -13,7 +13,7 @@ Text_field::Text_field (const int x, const int y, const int width, const int hei
 }
 
 
-void Text_field::draw (const int x, const int y, Window& window){
+void Text_field::draw (const int x, const int y, Texture& window){
     background.set_position(x + this->x, y + this->y);
     background.draw(window);
 

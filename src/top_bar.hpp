@@ -26,7 +26,7 @@ class Dragable_top_bar_zone : public Widget_manager{
     Dragable_top_bar_zone (const int x, const int y, const int size_x, const int size_y);
     ~Dragable_top_bar_zone ();
   
-    virtual void update (){
+    virtual void on_tick (){
 
     }
 

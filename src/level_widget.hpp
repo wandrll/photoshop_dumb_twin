@@ -26,7 +26,7 @@ class Spline_widget : public Window_widget{
 class Spline_field : public Widget_manager{
     public:
     Spline_field (const int x, const int y, const int width, const int height, const int cnt);
-    virtual void draw (const int x, const int y, Window& window);
+    virtual void draw (const int x, const int y, Texture& window);
 
     void sort_sliders();
     void update_texture();

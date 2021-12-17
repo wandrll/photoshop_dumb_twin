@@ -30,7 +30,7 @@ Window_widget::Window_widget (const int x, const int y, const int width, const i
 
 }
 
-void Window_widget::draw (const int x, const int y, Window& window){
+void Window_widget::draw (const int x, const int y, Texture& window){
     Widget_manager::draw(x, y, window);
     this->bar->draw(x + this->x, y + this->y, window);
 }

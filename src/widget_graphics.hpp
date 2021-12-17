@@ -17,7 +17,7 @@ class Rectangle_widget : public Widget {
         rect(0, 0, size_x, size_y, col, thickness, outline_color)
     {}
 
-    virtual void draw (const int x, const int y, Window& window){
+    virtual void draw (const int x, const int y, Texture& window){
         this->rect.draw(window, this->x + x, this->y + y);
     }
     
@@ -39,7 +39,7 @@ class Text_widget : public Widget {
         text(0, 0, text, font_size, col)
     {}
 
-    virtual void draw (const int x, const int y, Window& window){
+    virtual void draw (const int x, const int y, Texture& window){
         this->text.draw(window, this->x + x, this->y + y);
     }
     

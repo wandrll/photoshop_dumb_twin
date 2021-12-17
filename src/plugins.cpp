@@ -252,56 +252,59 @@ PUPPY::RenderTarget* Plugin::RenderTargetFactory::from_file(const char* path) co
 /////////////////////////////////WIDGET FACTORY END///////////////////////////////////////////
 
 
-
-/////////////////////////////////PLUGIN WIDGET BEGIN///////////////////////////////////////////
-Plugin::Widget::Widget (::Widget_manager* widget) :
-    widget(widget)
+/////////////////////////////////ABSTRACT WIDGET  BEGIN///////////////////////////////////////////
+Plugin::AbstractWidget::AbstractWidget (::Widget* widget, bool flag_to_delete) : 
+    widget(widget),
+    texture(new Plugin::RenderTarget(new ::Texture(widget->get_size().x, widget->get_size().y), true)),
+    flag_to_delete(flag_to_delete)
 {}
 
-Plugin::Widget::~Widget() {
-    delete widget;
+Plugin::AbstractWidget::~AbstractWidget() {
+    if (flag_to_delete)
+        delete widget;
 }
 
-void Plugin::Widget::set_position(const PUPPY::Vec2f &position_){
+
+void Plugin::AbstractWidget::set_position(const PUPPY::Vec2f &position_){
     widget->set_coordinats({position_.x, position_.y});
 }
 
-void Plugin::Widget::set_size(const PUPPY::Vec2f &size_){
+void Plugin::AbstractWidget::set_size(const PUPPY::Vec2f &size_){
     widget->set_size(size_.x, size_.y);
 }
 
-PUPPY::WBody Plugin::Widget::get_body(){
+PUPPY::WBody Plugin::AbstractWidget::get_body(){
     Vector size = widget->get_size();
     Vector coords = widget->get_coordinats();
     return PUPPY::WBody({coords.x, coords.y}, {size.x, size.y});
 }
 
-void Plugin::Widget::set_body(const PUPPY::WBody &body_){
+void Plugin::AbstractWidget::set_body(const PUPPY::WBody &body_){
     set_position(body_.position);
     set_size(body_.size);
 }
 
-PUPPY::Widget* Plugin::Widget::get_parent() const{
+PUPPY::Widget* Plugin::AbstractWidget::get_parent() const{
     return parent;
 }
 
-void Plugin::Widget::set_parent(PUPPY::Widget *parent_){
-    this->parent = dynamic_cast<Plugin::Widget*>(parent_);
+void Plugin::AbstractWidget::set_parent(PUPPY::Widget *parent_){
+    this->parent = dynamic_cast<Plugin::Widget_manager*>(parent_);
 }
 
-PUPPY::RenderTarget* Plugin::Widget::get_texture(){
+PUPPY::RenderTarget* Plugin::AbstractWidget::get_texture(){
     return nullptr;
 }
 
-void Plugin::Widget::set_texture(PUPPY::RenderTarget *texture_){
+void Plugin::AbstractWidget::set_texture(PUPPY::RenderTarget *texture_){
 
 }
 
-bool Plugin::Widget::is_active(){
+bool Plugin::AbstractWidget::is_active(){
     return widget->is_active_();
 }
 
-bool Plugin::Widget::is_inside(const PUPPY::Vec2f &pos){
+bool Plugin::AbstractWidget::is_inside(const PUPPY::Vec2f &pos){
     Vector size = widget->get_size();
     Vector position = widget->get_coordinats();
 
@@ -309,91 +312,117 @@ bool Plugin::Widget::is_inside(const PUPPY::Vec2f &pos){
             (position.y < pos.y && pos.y < position.y + size.y));
 }
 
-bool Plugin::Widget::add_child(PUPPY::Widget *child_){
-    Plugin::Widget* child = dynamic_cast<Plugin::Widget*>(child_);
-    child->parent = this;
-    widget->register_widget(child->widget);
+bool Plugin::AbstractWidget::delete_child(PUPPY::Widget *child_){
+    return false;
 }
 
-void Plugin::Widget::set_to_delete(){
-    widget->mark_close();
+bool Plugin::AbstractWidget::add_child(PUPPY::Widget *child_){
+    return false;
 }
 
-bool Plugin::Widget::delete_child(PUPPY::Widget *child_){
-    Plugin::Widget* child = dynamic_cast<Plugin::Widget*>(child_);
-    
-    widget->delete_widget(child->widget);
-    child->widget = nullptr;
-    delete child_;
-}
-
-bool Plugin::Widget::delete_from_parent(){
-
-}
-
-void Plugin::Widget::on_render          (const PUPPY::Event::Render          &event){
-
-}
-
-void Plugin::Widget::on_tick            (const PUPPY::Event::Tick            &event){
-
-}
-
-void Plugin::Widget::on_mouse_press     (const PUPPY::Event::MousePress      &event){
-
-}
-
-void Plugin::Widget::on_mouse_release   (const PUPPY::Event::MouseRelease    &event){
-
-}
-
-void Plugin::Widget::on_mouse_move      (const PUPPY::Event::MouseMove       &event){
-
-}
-
-void Plugin::Widget::on_key_down        (const PUPPY::Event::KeyDown         &event){
-
-}
-
-void Plugin::Widget::on_key_up          (const PUPPY::Event::KeyUp           &event){
-
-}
-
-void Plugin::Widget::on_text_enter      (const PUPPY::Event::TextEnter       &event){
-
-}
-
-void Plugin::Widget::on_scroll          (const PUPPY::Event::Scroll          &event){
-
-}
-
-void Plugin::Widget::on_hide            (const PUPPY::Event::Hide            &event){
-
-}
-
-void Plugin::Widget::on_show            (const PUPPY::Event::Show            &event){
-
-}
-
-void Plugin::Widget::hide() {
+void Plugin::AbstractWidget::hide() {
     widget->set_active(false);
 }
 
-void Plugin::Widget::show() {
+void Plugin::AbstractWidget::show() {
     widget->set_active(true);
 }
 
-void Plugin::Widget::focus(){
+void Plugin::AbstractWidget::focus(){
     widget->set_focus();
 }
 
-void Plugin::Widget::set_caption(const char *text, size_t font_size, const PUPPY::Vec2f *pos){
+void Plugin::AbstractWidget::set_caption(const char *text, size_t font_size, const PUPPY::Vec2f *pos){
 
 }
 
-void Plugin::Widget::set_base_color(const PUPPY::RGBA &color){
+void Plugin::AbstractWidget::set_base_color(const PUPPY::RGBA &color){
 
 }
+
+bool Plugin::AbstractWidget::delete_from_parent(){
+    if (parent){
+        return parent->delete_child(this);
+    }
+    return false;
+}   
+
+void Plugin::AbstractWidget::set_to_delete(){
+    widget->mark_close();
+}
+
+
+/////////////////////////////////ABSTRACT WIDGET  END///////////////////////////////////////////
+
+/////////////////////////////////PLUGIN WIDGET MANAGER BEGIN///////////////////////////////////////////
+Plugin::Widget_manager::Widget_manager (::Widget_manager* widget, bool flag_to_delete) :
+    AbstractWidget(widget, flag_to_delete),
+    widget_manager(widget)
+{}
+
+bool Plugin::Widget_manager::add_child(PUPPY::Widget *child_){
+    Plugin::Widget_manager* child = dynamic_cast<Plugin::Widget_manager*>(child_);
+    child->parent = this;
+    widget_manager->register_widget(child->widget);
+}
+
+
+bool Plugin::Widget_manager::delete_child(PUPPY::Widget *child_){
+    Plugin::Widget_manager* child = dynamic_cast<Plugin::Widget_manager*>(child_);
+    
+    widget_manager->delete_widget(child->widget);
+    child->widget = nullptr;
+    delete child_;
+
+    return true;
+}
+
+
+void Plugin::Widget_manager::on_render          (const PUPPY::Event::Render          &event){
+    widget_manager->draw(0, 0, *(texture->texture));
+}
+
+void Plugin::Widget_manager::on_tick            (const PUPPY::Event::Tick            &event){
+
+}
+
+void Plugin::Widget_manager::on_mouse_press     (const PUPPY::Event::MousePress      &event){
+
+}
+
+void Plugin::Widget_manager::on_mouse_release   (const PUPPY::Event::MouseRelease    &event){
+
+}
+
+void Plugin::Widget_manager::on_mouse_move      (const PUPPY::Event::MouseMove       &event){
+
+}
+
+void Plugin::Widget_manager::on_key_down        (const PUPPY::Event::KeyDown         &event){
+
+}
+
+void Plugin::Widget_manager::on_key_up          (const PUPPY::Event::KeyUp           &event){
+
+}
+
+void Plugin::Widget_manager::on_text_enter      (const PUPPY::Event::TextEnter       &event){
+
+}
+
+void Plugin::Widget_manager::on_scroll          (const PUPPY::Event::Scroll          &event){
+
+}
+
+void Plugin::Widget_manager::on_hide            (const PUPPY::Event::Hide            &event){
+
+}
+
+void Plugin::Widget_manager::on_show            (const PUPPY::Event::Show            &event){
+
+}
+
+
 
 
 

@@ -28,7 +28,7 @@ class Saturation_and_lightness_picker : public Widget_manager {
 
     Saturation_and_lightness_picker (const int x, const int y, const int size, const double hue = 0);
 
-    virtual void draw (const int x, const int y, Window& window);
+    virtual void draw (const int x, const int y, Texture& window);
 
     void set_hue(const double val){
         this->hue = val;
@@ -60,7 +60,7 @@ class Hue_picker : public Widget_manager {
 
     Hue_picker (const int x, const int y, const int width, const int height, Saturation_and_lightness_picker* palette, const double hue = 0);
 
-    virtual void draw (const int x, const int y, Window& window);
+    virtual void draw (const int x, const int y, Texture& window);
 
   
 

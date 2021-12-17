@@ -10,7 +10,7 @@ class Text_field : public Widget{
 
     Text_field (const int x, const int y, const int width, const int height, const char* line = "Test");
 
-    virtual void draw (const int x, const int y, Window& window);
+    virtual void draw (const int x, const int y, Texture& window);
 
     virtual bool on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event);
     virtual bool on_keyboard (const Event::Keyboard_event& event);

@@ -23,7 +23,7 @@ bool Widget::on_keyboard (const Event::Keyboard_event& event){
 }
 
 
-void Widget_manager::draw (const int x, const int y, Window& window){
+void Widget_manager::draw (const int x, const int y, Texture& window){
     if (!is_active){
         return;
     }
@@ -34,16 +34,6 @@ void Widget_manager::draw (const int x, const int y, Window& window){
     }
 }
 
-// void Widget_manager::draw (const int x, const int y, Texture& window){
-//     if (!is_active){
-//         return;
-//     }
-//     int size = widgets.size();
-
-//     for (int i = 0; i < size; i++){
-//         this->widgets[i]->draw(this->x + x, this->y + y, window);
-//     }
-// }
 
 
 bool Widget_manager::on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event){
@@ -185,9 +175,9 @@ Widget_manager::~Widget_manager (){
 }
 
 
-void Widget_manager::update (){
+void Widget_manager::on_tick (){
     for (int i = 0; i < this->widgets.size(); i++){
-        widgets[i]->update();
+        widgets[i]->on_tick();
     }
     
     for (int i = 0; i < this->widgets.size() - 1; i++){
@@ -248,16 +238,17 @@ void Widget_event_reciever::run(){
     clear_sprite.set_texture(clear_texture);
 
     // clear_texture.clear(Color(32, 32, 32, 255));
-    clear_sprite.set_position(x, y);
+    clear_sprite.set_position(0, 0);
     clear_sprite.set_size(width, height);
 
     
 
     Window* window = global_singleton->get_window();
     
-    Texture text(width, height);
+    Texture text(width + 4 , height + 4);
     Sprite res_sprite;
     res_sprite.set_texture(text);
+    res_sprite.set_position(0, 0);
 
     Blend_mode mode(Blending::Factor::One, Blending::Factor::Zero);
 
@@ -281,13 +272,13 @@ void Widget_event_reciever::run(){
         clear_sprite.draw(*(window), x, y, mode);
         text.clear();
 
-        Widget_manager::draw(x, y, text);
+        Widget_manager::draw(-x - 2, -y - 2, text);
         
         res_sprite.draw(*window, x, y);
 
         global_singleton->get_window()->display();
 
-        update();
+        on_tick();
         mouse.update();
         keyboard.update();
 

@@ -24,9 +24,9 @@ class Widget {
 
     }
 
-    virtual void draw (const int x, const int y, Window& window) = 0;
+    virtual void draw (const int x, const int y, Texture& window) = 0;
     
-    virtual void update (){
+    virtual void on_tick (){
 
     }
 
@@ -139,9 +139,9 @@ class Widget_manager : public Widget {
     {}
     
 
-    virtual void draw (const int x, const int y, Window& window);
+    virtual void draw (const int x, const int y, Texture& window);
 
-    virtual void update ();
+    virtual void on_tick ();
 
     virtual bool on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event);
     virtual bool on_mouse_release (const int x, const int y, const Event::Mouse_release& event);

@@ -168,7 +168,7 @@ bool Spline_field::on_right_mouse_press (const int x, const int y, const Event::
 }
 
 
-void Spline_field::draw (const int x, const int y, Window& window){
+void Spline_field::draw (const int x, const int y, Texture& window){
     Widget_manager::draw(x, y, window);
 
 

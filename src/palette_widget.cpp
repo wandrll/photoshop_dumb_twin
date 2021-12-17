@@ -76,7 +76,7 @@ Saturation_and_lightness_picker::Saturation_and_lightness_picker (const int x, c
 
 
 
-void Saturation_and_lightness_picker::draw (const int x, const int y, Window& window){
+void Saturation_and_lightness_picker::draw (const int x, const int y, Texture& window){
     
     Sprite sprite;
     sprite.set_texture(this->texture);
@@ -185,7 +185,7 @@ Hue_picker::Hue_picker (const int x, const int y, const int width, const int hei
         
 }
 
-void Hue_picker::draw (const int x, const int y, Window& window){
+void Hue_picker::draw (const int x, const int y, Texture& window){
     
     Sprite sprite;
     sprite.set_texture(this->texture);
