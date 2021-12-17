@@ -41,7 +41,7 @@ double mid (double a, double b, double c){
 bool Slider::on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event){
     if (   this->x + x <= event.click.x && event.click.x <= this->width  + this->x + x 
         && this->y + y <= event.click.y && event.click.y <= this->height + this->y + y){
-            this->is_active = true;
+            this->focus = true;
             return true;
     }
 
@@ -50,12 +50,12 @@ bool Slider::on_mouse_press (const int x, const int y, const Event::Left_Mouse_p
 }
 
 bool Slider::on_mouse_release (const int x, const int y, const Event::Mouse_release& event){
-    this->is_active = false;
+    this->focus = false;
     return true;
 }
 
 bool Slider::on_mouse_pressed_move (const int x, const int y, const Event::Mouse_pressed_move& event){
-    if (this->is_active){
+    if (this->focus){
 
         int c_x = mid(left_x_limit, event.move.end_move.x - x, right_x_limit) - this->width/2;
         int c_y = mid(top_y_limit, event.move.end_move.y - y, bottom_y_limit) - this->height/2;

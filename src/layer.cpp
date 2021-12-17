@@ -34,7 +34,7 @@ void Layer::load_image(const std::string name){
     sprite.draw(this->texture, 0, 0, Blend_mode(Blending::Factor::One, Blending::Factor::Zero));
 
 
-    update_texture_to_draw({});
+    update_texture_to_draw();
 
 }
 
@@ -70,21 +70,21 @@ bool Layer_manager_widget::on_mouse_press (const int x, const int y, const Event
             Abstract_tool* curr_tool = global_singleton->get_tools()->get_tool(); 
 
             global_singleton->set_layer(this->get_active_layer());
-            curr_tool->update();
+
             curr_tool->on_press(Vector(event.click.x - this->x - x, event.click.y - this->y - y));
 
-            get_active_layer()->update_texture_to_draw(curr_tool->merge_mode);
+            get_active_layer()->update_texture_to_draw();
 
             // global_singleton->get_layer()->update_texture_to_draw(curr_tool->merge_mode);
 
-            this->is_active = true;
+            this->focus = true;
         return true;
     }
     return false;
 }
 
 bool Layer_manager_widget::on_mouse_pressed_move (const int x, const int y, const Event::Mouse_pressed_move& event){
-    if (this->is_active){
+    if (this->focus){
         printf("brrrrrrrrrrrrrrr\n");
 
             Abstract_tool* curr_tool = global_singleton->get_tools()->get_tool(); 
@@ -93,7 +93,7 @@ bool Layer_manager_widget::on_mouse_pressed_move (const int x, const int y, cons
             curr_tool->on_move(Vector(event.move.begin_move.x - this->x - x, event.move.begin_move.y - this->y - y),
                                                    Vector(event.move.end_move.x   - this->x - x, event.move.end_move.y   - this->y - y));
             
-            get_active_layer()->update_texture_to_draw(curr_tool->merge_mode);
+            get_active_layer()->update_texture_to_draw();
 
             // global_singleton->get_layer()->update_texture_to_draw(curr_tool->merge_mode);
 
@@ -113,11 +113,11 @@ bool Layer_manager_widget::on_mouse_release (const int x, const int y, const Eve
         
         curr_tool->on_release(Vector(event.click.x - this->x - x, event.click.y - this->y - y));
 
-        layer->merge_with_preview(curr_tool->merge_mode);
+        layer->merge_with_preview();
 
-        layer->update_texture_to_draw({});
+        layer->update_texture_to_draw();
 
-        this->is_active = false;
+        this->focus = false;
     }
     return true;
 

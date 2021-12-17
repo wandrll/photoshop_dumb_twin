@@ -16,7 +16,8 @@ class Widget {
         width(width),
         height(height),
         mark_for_delete(false),
-        is_moveable(false)
+        is_moveable(false),
+        is_active(true)
     {}
 
     virtual ~Widget (){
@@ -99,6 +100,18 @@ class Widget {
         return false;
     }
 
+    bool is_active_(){
+        return is_active;
+    }
+
+    void set_focus (){
+        focus = true;
+    }
+
+    void set_active (bool flag){
+        is_active = flag;
+    }
+
     protected: 
 
     int x;
@@ -107,9 +120,12 @@ class Widget {
     int width;
     int height;
 
-    bool is_active;
+    bool focus;
     bool mark_for_delete;
     bool is_moveable;
+
+    bool is_active;
+
 
 };
 
@@ -149,6 +165,8 @@ class Widget_manager : public Widget {
 
     virtual ~Widget_manager ();
 
+
+    void delete_widget(Widget* widget);
 
     protected:
     bool is_accept_events;

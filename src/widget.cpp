@@ -24,6 +24,9 @@ bool Widget::on_keyboard (const Event::Keyboard_event& event){
 
 
 void Widget_manager::draw (const int x, const int y, Window& window){
+    if (!is_active){
+        return;
+    }
     int size = widgets.size();
 
     for (int i = 0; i < size; i++){
@@ -31,11 +34,23 @@ void Widget_manager::draw (const int x, const int y, Window& window){
     }
 }
 
+// void Widget_manager::draw (const int x, const int y, Texture& window){
+//     if (!is_active){
+//         return;
+//     }
+//     int size = widgets.size();
 
+//     for (int i = 0; i < size; i++){
+//         this->widgets[i]->draw(this->x + x, this->y + y, window);
+//     }
+// }
 
 
 bool Widget_manager::on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event){
     if (!is_accept_events){
+        return false;
+    }
+    if (!is_active){
         return false;
     }
 
@@ -54,12 +69,15 @@ bool Widget_manager::on_mouse_press (const int x, const int y, const Event::Left
     res = res || (    this->x + x <= event.click.x && event.click.x <= this->width  + this->x + x 
                    && this->y + y <= event.click.y && event.click.y <= this->height + this->y + y);
     
-    this->is_active = res;
+    this->focus = res;
     return res;   
 }
 
 bool Widget_manager::on_mouse_release (const int x, const int y, const Event::Mouse_release& event){
     if (!is_accept_events){
+        return false;
+    }
+    if (!is_active){
         return false;
     }
 
@@ -72,13 +90,16 @@ bool Widget_manager::on_mouse_release (const int x, const int y, const Event::Mo
             break;
         }
     }
-    this->is_active = false;
+    this->focus = false;
     return res;
 
 }
 
 bool Widget_manager::on_mouse_pressed_move (const int x, const int y, const Event::Mouse_pressed_move& event){
     if (!is_accept_events){
+        return false;
+    }
+    if (!is_active){
         return false;
     }
 
@@ -99,6 +120,9 @@ bool Widget_manager::on_mouse_released_move (const int x, const int y, const Eve
     if (!is_accept_events){
         return false;
     }
+    if (!is_active){
+        return false;
+    }
 
     int size = widgets.size();
     bool res = false;
@@ -116,6 +140,9 @@ bool Widget_manager::on_right_mouse_press (const int x, const int y, const Event
     if (!is_accept_events){
         return false;
     }
+    if (!is_active){
+        return false;
+    }
 
     int size = widgets.size();
     bool res = false;
@@ -131,6 +158,9 @@ bool Widget_manager::on_right_mouse_press (const int x, const int y, const Event
 
 bool Widget_manager::on_keyboard (const Event::Keyboard_event& event){
     if (!is_accept_events){
+        return false;
+    }
+    if (!is_active){
         return false;
     }
     
@@ -160,11 +190,10 @@ void Widget_manager::update (){
         widgets[i]->update();
     }
     
-    // printf("\n--------------------------\n");
     for (int i = 0; i < this->widgets.size() - 1; i++){
-        // printf("%p %d\n", widgets[i], widgets[i]->is_mark_for_close());
+
         if(widgets[i]->is_marked_for_deletion()){
-            // printf("Close\n");
+
             delete widgets[i];
             std::swap(widgets[i], widgets[widgets.size() - 1]);
             widgets.pop_back();
@@ -173,8 +202,7 @@ void Widget_manager::update (){
     }
 
     if(widgets.back()->is_marked_for_deletion()){
-        // printf("%p %d\n", widgets.back(), widgets.back()->is_mark_for_close());
-        // printf("Close\n");
+
         delete widgets.back();
         widgets.pop_back();
     }
@@ -188,6 +216,22 @@ void Widget_manager::open_image (const std::string& name){
     this->widgets.push_back(canv);
     //app.register_widget(canv);
 }
+
+
+void Widget_manager::delete_widget(Widget* widget){
+    for (int i = 0; i < widgets.size(); i++){
+        if (widgets[i] == widget){
+            std::swap(widgets[i], widgets[widgets.size() - 1]);
+            widgets.pop_back();
+            delete widget;
+            return;
+        }
+    }
+
+}
+
+
+
 
 
 Widget_event_reciever::Widget_event_reciever (const int x, const int y, const int width, const int height) :
@@ -207,6 +251,14 @@ void Widget_event_reciever::run(){
     clear_sprite.set_position(x, y);
     clear_sprite.set_size(width, height);
 
+    
+
+    Window* window = global_singleton->get_window();
+    
+    Texture text(width, height);
+    Sprite res_sprite;
+    res_sprite.set_texture(text);
+
     Blend_mode mode(Blending::Factor::One, Blending::Factor::Zero);
 
 
@@ -216,6 +268,8 @@ void Widget_event_reciever::run(){
     Event::Mouse_released_move mouse_released_move;
     Event::Right_Mouse_press mouse_right_press;
     Event::Keyboard_event keyboard_event;
+
+
     clock_t curr = clock();
     clock_t prev = curr;
     while(true){
@@ -223,12 +277,14 @@ void Widget_event_reciever::run(){
         curr = clock();
         
         global_singleton->get_tools()->get_tool()->on_tick(((double)(curr - prev))/CLOCKS_PER_SEC);
-        // global_singleton->get_window()->clear();
 
-        clear_sprite.draw(*(global_singleton->get_window()), x, y, mode);
+        clear_sprite.draw(*(window), x, y, mode);
+        text.clear();
 
-        Widget_manager::draw(0, 0, *(global_singleton->get_window()));
+        Widget_manager::draw(x, y, text);
         
+        res_sprite.draw(*window, x, y);
+
         global_singleton->get_window()->display();
 
         update();

@@ -9,7 +9,7 @@ Singleton::Singleton () :
         size(0),
         color({}),
         window(nullptr),
-        app_interface(build_app_interface())
+        app_interface(new Plugin::AppInterface)
 {
     resources.load_resources();
 }

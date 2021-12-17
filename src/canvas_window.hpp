@@ -33,16 +33,16 @@ class Layer : public Widget {
         return &preview_texture;
     }
 
-    void merge_with_preview (const Blend_mode& mode){
+    void merge_with_preview (){
         Sprite sprite;
         sprite.set_texture(preview_texture);
 
-        sprite.draw(texture, 0, 0, mode);
+        sprite.draw(texture);
         preview_texture.clear();
     }
 
 
-    void update_texture_to_draw (const Blend_mode& mode){
+    void update_texture_to_draw (){
         // texture_to_draw.clear
 
         Sprite sprite;
@@ -50,7 +50,7 @@ class Layer : public Widget {
         sprite.draw(texture_to_draw, 0, 0, Blend_mode(Blending::Factor::One, Blending::Factor::Zero));
 
         sprite.set_texture(preview_texture);
-        sprite.draw(texture_to_draw, 0, 0, mode);
+        sprite.draw(texture_to_draw);
 
     }
  

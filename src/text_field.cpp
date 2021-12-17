@@ -17,7 +17,7 @@ void Text_field::draw (const int x, const int y, Window& window){
     background.set_position(x + this->x, y + this->y);
     background.draw(window);
 
-    if (is_active){
+    if (focus){
         Rectangle cursor (this->x + x + cursor_position, y + this->y + height/10, 1, height - height/5, {255, 255, 255});
         cursor.draw(window);
     }
@@ -29,10 +29,10 @@ void Text_field::draw (const int x, const int y, Window& window){
 
 bool Text_field::on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event){
     if (is_in_widget(x, y, event.click)){
-        this->is_active = true;
+        this->focus = true;
         return true;
     }else{
-        this->is_active = false;
+        this->focus = false;
         return false;
     }
 
@@ -41,7 +41,7 @@ bool Text_field::on_mouse_press (const int x, const int y, const Event::Left_Mou
 
 
 bool Text_field::on_keyboard (const Event::Keyboard_event& event){
-    if (this->is_active){
+    if (this->focus){
         
         if (handle_hotkeys(event)){
             return true;

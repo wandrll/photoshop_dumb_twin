@@ -39,12 +39,12 @@ bool Window_widget::on_mouse_pressed_move (const int x, const int y, const Event
 
     bool res = Widget_manager::on_mouse_pressed_move(x, y, event);
     if(res){
-        this->is_active = res;
+        this->focus = res;
         return true;
     }
 
     res = this->bar->on_mouse_pressed_move(x + this->x, y + this->y, event);
-    this->is_active = res;
+    this->focus = res;
     return res;
 }
 
@@ -56,11 +56,11 @@ Window_widget::~Window_widget (){
 bool Window_widget::on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event){
     bool res = bar->on_mouse_press(x + this->x, y + this->y, event);
     if(res){
-        this->is_active = true;
+        this->focus = true;
         return true;
     }
-    this->is_active = Widget_manager::on_mouse_press(x, y , event);
-    return this->is_active;
+    this->focus = Widget_manager::on_mouse_press(x, y , event);
+    return this->focus;
 }
 
 bool Window_widget::on_mouse_release (const int x, const int y, const Event::Mouse_release& event){
@@ -74,7 +74,7 @@ bool Window_widget::on_mouse_release (const int x, const int y, const Event::Mou
 
 bool Window_widget::on_mouse_released_move (const int x, const int y, const Event::Mouse_released_move& event){
     bool res = bar->on_mouse_released_move(x + this->x, y + this->y, event);
-    this->is_active = false;
+    this->focus = false;
     if(res){
         return true;
     }

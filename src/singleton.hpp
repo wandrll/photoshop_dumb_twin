@@ -4,8 +4,9 @@
 #include "tools.hpp"
 #include "resource_handler.hpp"
 #include "utils.hpp"
-#include "plugin_std.hpp"
+#include "plugins.hpp"
 #include "main_window_widget.hpp"
+
 
 // #include "canvas_window.hpp"
 class Layer;
@@ -97,7 +98,7 @@ class Singleton{
 
 
 
-    PAppInterface* get_app_interface(){
+    Plugin::AppInterface* get_app_interface(){
         return this->app_interface;
     }
 
@@ -122,7 +123,7 @@ class Singleton{
     Window* window;
     Widget_manager* main_window;
 
-    PAppInterface* app_interface;
+    Plugin::AppInterface* app_interface;
 
 };
 

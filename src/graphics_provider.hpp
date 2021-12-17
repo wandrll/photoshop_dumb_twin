@@ -10,7 +10,7 @@
 
 #include <SFML/Graphics.hpp>
 
-const char font_file[] = "/usr/share/fonts/TTF/Inconsolata-Regular.ttf";
+const char font_file[] = "resources/Inconsolata-Condensed.ttf";
 
 bool is_mouse_left_button_pressed();
 bool is_mouse_right_button_pressed();
@@ -356,6 +356,8 @@ class Texture{
 
     bool load_from_file (const std::string& filename);
 
+    bool load_from_memory (const void* data, int width, int height);
+
     void clear(){
         texture->clear({0,0,0,0});
     }
@@ -372,10 +374,18 @@ class Texture{
         display();
         Color* array = new Color[width * height];
 
-        this->image = this->texture->getTexture().copyToImage();
-        memcpy(array, this->texture->getTexture().copyToImage().getPixelsPtr(), width * height * sizeof(Color));
+        sf::Image image = this->texture->getTexture().copyToImage();
+        memcpy(array, image.getPixelsPtr(), width * height * sizeof(Color));
         
         return array;
+    }
+
+    Color get_pixel(size_t x, size_t y) const{
+        sf::Image image = this->texture->getTexture().copyToImage();
+        const sf::Uint8* array = image.getPixelsPtr();
+
+        return Color(array[(width * y + x) * 4], array[(width * y + x) * 4 + 1], array[(width * y + x) * 4 + 2], array[(width * y + x) * 4 + 3]);
+
     }
 
     void set_pixels(const Color* data, int x, int y, int width, int height);
@@ -389,7 +399,7 @@ class Texture{
     int height;
 
     sf::RenderTexture* texture;
-    sf::Image image;
+    
 
 
 };

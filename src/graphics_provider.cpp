@@ -346,7 +346,6 @@ Texture::Texture (const int size_x, const int size_y):
                 rect.setPosition(0,0);
                 rect.setSize({size_x, size_y});
                 this->texture->draw(rect);
-                this->image = this->texture->getTexture().copyToImage();
         }
 
 
@@ -369,9 +368,37 @@ bool Texture::load_from_file (const std::string& filename){
     sprite.setTexture(tmp_texture);
     
     this->texture->draw(sprite);
-    this->image = this->texture->getTexture().copyToImage();
+
     return true;
 }
+
+
+bool Texture::load_from_memory (const void* data, int width, int height){
+    sf::Texture tmp_texture;
+    if (!tmp_texture.create(width, height)){
+        return false;
+    }
+
+    if (!tmp_texture.loadFromMemory(data, width * height * 4)){
+        return false;
+    }
+    
+
+    this->width = width;
+    this->height = height;
+
+    if (!this->texture->create(width, height)){
+        return false;
+    }
+    
+    sf::Sprite sprite;
+    sprite.setTexture(tmp_texture);
+    
+    this->texture->draw(sprite);
+
+    return true;
+}
+
 
 
 void Texture::set_pixels(const Color* data, int x, int y, int width, int height){

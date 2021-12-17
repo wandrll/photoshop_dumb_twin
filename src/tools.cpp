@@ -7,6 +7,7 @@ extern Singleton* global_singleton;
 
 
 void Brush::on_press (const Vector& vector){
+    update();
     // Texture* textr = global_singleton->get_layer()->get_active_texture();
     // Color* pixls = textr->get_array();
     // textr->set_pixels(pixls, 0, 0, textr->get_size().x, textr->get_size().y, Blend_mode{});
@@ -68,6 +69,8 @@ Tools_manager::~Tools_manager (){
 // }
 
 void Eraser::on_press (const Vector& vector){
+    update();
+    
     this->circle.set_position(vector.x - this->eraser_size/2, vector.y - this->eraser_size/2);
     this->circle.draw(*(global_singleton->get_layer()->get_active_texture()), 0, 0, mode);
 }
@@ -183,31 +186,31 @@ void Eraser::update (){
 
 
 
-Loaded_tool::Loaded_tool (PPluginInterface* interface) : 
+Loaded_tool::Loaded_tool (PUPPY::PluginInterface* interface) : 
         interface(interface)
 {
-    this->interface->general.init(global_singleton->get_app_interface());
+    this->interface->init(global_singleton->get_app_interface());
 
-    const PPluginInfo* info = interface->general.get_info();
+    const PUPPY::PluginInfo* info = interface->get_info();
 
     this->name = std::string(info->name);
 
-
-    switch(interface->general.get_flush_policy()){
-        case PPLP_COPY:{
-            merge_mode = Blend_mode(Blending::Factor::One, Blending::Factor::Zero);
-        }
-
-    }
 }
 
 
-Loaded_effect::Loaded_effect (PPluginInterface* interface) : 
+Loaded_effect::Loaded_effect (PUPPY::PluginInterface* interface) : 
         interface(interface)
 {
-    this->interface->general.init(global_singleton->get_app_interface());
+    this->interface->init(global_singleton->get_app_interface());
 
-    const PPluginInfo* info = interface->general.get_info();
+    const PUPPY::PluginInfo* info = interface->get_info();
     this->name = std::string(info->name);
+}
 
+
+void Effects_manager::apply_effect(int id){
+    if (id >= 0 && id < effects.size()){
+        effects[id]->apply();
+        global_singleton->get_layer()->update_texture_to_draw();
+    }
 }

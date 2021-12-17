@@ -3,7 +3,7 @@
 #include "graphics_provider.hpp"
 #include "utils.hpp"
 #include "window_widget.hpp"
-#include "plugin_std.hpp"
+#include "../plugins/plugin_std.hpp"
 
 class Layer;
 
@@ -20,7 +20,6 @@ class Abstract_tool{
 
     }
 
-    virtual void update() = 0;
 
     virtual void on_press(const Vector& vector) = 0; 
 
@@ -32,8 +31,6 @@ class Abstract_tool{
 
     }
 
-
-    Blend_mode merge_mode;
 
 
     std::string name;    
@@ -49,7 +46,6 @@ class Abstract_effect{
 
     }
 
-    virtual void update() = 0;
 
     virtual void apply () = 0;
 
@@ -86,9 +82,6 @@ class Brush : public Abstract_tool{
 
     }
 
-    virtual void update();
-
-
     
     virtual void on_press(const Vector& vector); 
 
@@ -111,6 +104,10 @@ class Brush : public Abstract_tool{
 
     
     private:
+
+    void update();
+
+
     int brush_size;
     double max_size;
     Color color;
@@ -150,7 +147,6 @@ class Eraser : public Abstract_tool{
 
     virtual void on_release(const Vector& vector); 
 
-    virtual void update ();
 
     void set_opacity(const int opacity){
         // int new_alpha = opacity * 255;
@@ -167,6 +163,9 @@ class Eraser : public Abstract_tool{
 
 
     private:
+
+    void update ();
+
     Blend_mode mode;
     int eraser_size;
     double max_size;
@@ -222,11 +221,7 @@ class Effects_manager{
         this->effects.push_back(effect);
     }
 
-    void apply_effect(int id){
-        if (id >= 0 && id < effects.size()){
-            effects[id]->apply();
-        }
-    }
+    void apply_effect(int id);
 
     friend class Effects_widget;
 
@@ -270,45 +265,42 @@ class Effects_widget : public Window_widget{
 class Loaded_tool : public Abstract_tool{
     public:
     
-    Loaded_tool (PPluginInterface* interface);
+    Loaded_tool (PUPPY::PluginInterface* interface);
 
 
     virtual ~Loaded_tool (){
-        interface->general.deinit();
+        
+        std::cout << "deinit tool" << std::endl;
+        interface->deinit();
+        std::cout << "deinit succesfully" << std::endl;
+        // delete interface;
+
     }
 
-    virtual void update(){
-        if (interface->general.on_settings_update != nullptr)
-            interface->general.on_settings_update();
-    }
-
+ 
     virtual void on_press(const Vector& vector){
-        if (interface->tool.on_press != nullptr)
-            interface->tool.on_press(PVec2f(vector.x, vector.y));
+        interface->tool_on_press(PUPPY::Vec2f(vector.x, vector.y));
 
     }
 
     virtual void on_move(const Vector& start, const Vector& end){
-        if (interface->tool.on_move != nullptr)
-            interface->tool.on_move(PVec2f(start.x, start.y), PVec2f(end.x, end.y));
+        interface->tool_on_move(PUPPY::Vec2f(start.x, start.y), PUPPY::Vec2f(end.x, end.y));
 
     }
 
     virtual void on_release(const Vector& vector){
-        if (interface->tool.on_release != nullptr)
-            interface->tool.on_release(PVec2f(vector.x, vector.y));
+        interface->tool_on_release(PUPPY::Vec2f(vector.x, vector.y));
 
     }
 
     virtual void on_tick(const double delta_t){
-        if (interface->general.on_tick != nullptr)
-            interface->general.on_tick(delta_t);
+        interface->on_tick(delta_t);
         
     }
 
     private:
 
-    PPluginInterface* interface;
+    PUPPY::PluginInterface* interface;
 
 };
 
@@ -316,36 +308,28 @@ class Loaded_tool : public Abstract_tool{
 class Loaded_effect : public Abstract_effect{
     public:
 
-    Loaded_effect (PPluginInterface* interface);
+    Loaded_effect (PUPPY::PluginInterface* interface);
 
 
     virtual ~Loaded_effect (){
-        interface->general.deinit();
+        interface->deinit();
     }
 
 
-    virtual void update(){
-        if (interface->general.on_settings_update != nullptr)
-            interface->general.on_settings_update();
-    }
 
     virtual void apply(){
         
-        if (interface->effect.apply != nullptr){
-            interface->effect.apply();
-            std::cout << "Apply loaded effect\n";
-        }
+        interface->effect_apply();
+        std::cout << "Apply loaded effect\n";
     }
 
 
     virtual void on_tick(const double delta_t){
-        if (interface->general.on_tick != nullptr)
-            interface->general.on_tick(delta_t);
-        
+        interface->on_tick(delta_t);
     }
 
     private:
-    PPluginInterface* interface;
+    PUPPY::PluginInterface* interface;
 };
 
 

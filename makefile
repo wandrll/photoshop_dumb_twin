@@ -2,7 +2,7 @@
 LXXFLAGS = -ldl $(shell pkg-config --libs sfml-all) $(shell pkg-config --libs opengl) $(TMP)
 TMP = -g -fsanitize=address -fsanitize=alignment -fsanitize=bool -fsanitize=bounds -fsanitize=enum -fsanitize=float-cast-overflow -fsanitize=float-divide-by-zero -fsanitize=integer-divide-by-zero -fsanitize=leak -fsanitize=nonnull-attribute -fsanitize=null -fsanitize=object-size -fsanitize=return -fsanitize=returns-nonnull-attribute -fsanitize=shift -fsanitize=signed-integer-overflow -fsanitize=undefined -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=vptr
 CXXFLAGS = -std=c++20 -O3 $(shell pkg-config --cflags sfml-all) $(shell pkg-config --cflags opengl) -w $(TMP)
-
+#CXX = clang
 # ------------------------------------Options-----------------------------------
 
 # -------------------------------------Files------------------------------------
