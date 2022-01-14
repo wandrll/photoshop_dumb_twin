@@ -2,6 +2,8 @@
 
 
 Open_file_widget::Open_file_widget (const int x, const int y, const int width, const int height, Widget_manager* widget) :
+        Widget(x, y, width, height),
+
         Widget_event_reciever(x, y, width, height),
         parent(this)
 {

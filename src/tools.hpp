@@ -27,10 +27,7 @@ class Abstract_tool{
 
     virtual void on_release(const Vector& vector) = 0; 
 
-    virtual void on_tick(const double delta_t){
-
-    }
-
+   
 
 
     std::string name;    
@@ -232,6 +229,8 @@ class Effects_manager{
 
 
 
+
+
 class Tools_widget : public Window_widget{
     public:
     
@@ -270,17 +269,14 @@ class Loaded_tool : public Abstract_tool{
 
     virtual ~Loaded_tool (){
         
-        std::cout << "deinit tool" << std::endl;
-        interface->deinit();
-        std::cout << "deinit succesfully" << std::endl;
-        // delete interface;
+
 
     }
 
  
     virtual void on_press(const Vector& vector){
+        std::cout << "apply tool " << vector.x << " " << vector.y  << std::endl;
         interface->tool_on_press(PUPPY::Vec2f(vector.x, vector.y));
-
     }
 
     virtual void on_move(const Vector& start, const Vector& end){
@@ -312,7 +308,7 @@ class Loaded_effect : public Abstract_effect{
 
 
     virtual ~Loaded_effect (){
-        interface->deinit();
+
     }
 
 

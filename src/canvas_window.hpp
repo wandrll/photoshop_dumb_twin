@@ -16,7 +16,7 @@ class Layer_manager_widget;
 
 
 
-class Layer : public Widget {
+class Layer : virtual public Widget {
     public:
     Layer (const int x, const int y, const int width, const int height);
 
@@ -176,8 +176,6 @@ class Layer_controller_widget : public Widget_manager {
     Layer_manager_widget* layers;
 
 };
-
-
 
 
 

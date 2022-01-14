@@ -8,6 +8,7 @@
 
 
 Canvas_widget::Canvas_widget (const int x, const int y, const int width, const int height) :
+        Widget(x, y, width, height),
         Window_widget (x, y, width, height)
     {
     this->set_ability_to_move(true);

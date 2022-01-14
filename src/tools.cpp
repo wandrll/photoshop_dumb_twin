@@ -118,7 +118,8 @@ class Change_tool_in_manager{
 
 };
 
-Tools_widget::Tools_widget (const int x, const int y, const int width, const int height) : 
+Tools_widget::Tools_widget (const int x, const int y, const int width, const int height) :
+    Widget(x, y, width, height),
     Window_widget(x, y, width, height)
 {
     Tools_manager* tools = global_singleton->get_tools();
@@ -126,6 +127,7 @@ Tools_widget::Tools_widget (const int x, const int y, const int width, const int
 
     for (int i = 0; i < cnt; i++){
 
+        std::cout <<"\n add tool in widget\n" << std::endl;
 
 
         Text_button* button = new Text_button (10, 100 + i * 20, 50, 16, tools->tools[i]->name.c_str(), 10, Color(255, 255, 255), Color(0, 0, 0), i);
@@ -148,13 +150,16 @@ class Apply_effect{
 };
 
 
-Effects_widget::Effects_widget (const int x, const int y, const int width, const int height) : 
+Effects_widget::Effects_widget (const int x, const int y, const int width, const int height) :
+    Widget(x, y, width, height),
     Window_widget(x, y, width, height)
 {
     Effects_manager* effects = global_singleton->get_effects();
     int cnt = effects->effects.size();
 
     for (int i = 0; i < cnt; i++){
+        
+        std::cout <<"\n add effect in widget\n" << std::endl;
 
         Text_button* button = new Text_button (10, 100 + i * 20, 50, 16, effects->effects[i]->name.c_str(), 10, Color(255, 255, 255), Color(0, 0, 0), i);
         Controller<Apply_effect, Effects_manager>* control2 = new Controller<Apply_effect, Effects_manager>(global_singleton->get_effects()); 
@@ -189,26 +194,21 @@ void Eraser::update (){
 Loaded_tool::Loaded_tool (PUPPY::PluginInterface* interface) : 
         interface(interface)
 {
-    this->interface->init(global_singleton->get_app_interface());
-
     const PUPPY::PluginInfo* info = interface->get_info();
-
     this->name = std::string(info->name);
-
 }
 
 
 Loaded_effect::Loaded_effect (PUPPY::PluginInterface* interface) : 
         interface(interface)
 {
-    this->interface->init(global_singleton->get_app_interface());
-
     const PUPPY::PluginInfo* info = interface->get_info();
     this->name = std::string(info->name);
 }
 
 
 void Effects_manager::apply_effect(int id){
+    std::cout << "apply effect" << std::endl;
     if (id >= 0 && id < effects.size()){
         effects[id]->apply();
         global_singleton->get_layer()->update_texture_to_draw();

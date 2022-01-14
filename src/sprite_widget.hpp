@@ -4,7 +4,7 @@
 #include "widget.hpp"
 #include "resource_handler.hpp"
 
-class Widget_sprite : public Widget{
+class Widget_sprite : virtual public Widget{
     public:
     
     Widget_sprite (const int x, const int y, const int size_x, const int size_y, const Resource_type type) :

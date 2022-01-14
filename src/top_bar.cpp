@@ -5,6 +5,7 @@
 
 
 Top_bar::Top_bar(const int x, const int y, const int width, const int height, Widget* widget):
+        Widget(x, y, width, height),
         Widget_manager(x, y, width, height)
     {
 
@@ -63,6 +64,7 @@ Top_bar::Top_bar(const int x, const int y, const int width, const int height, Wi
 
 
 Dragable_top_bar_zone::Dragable_top_bar_zone (const int x, const int y, const int size_x, const int size_y) :
+    Widget(x, y, size_x, size_y),
     Widget_manager(x, y, size_x, size_y),
     controller(NULL)
 {}
@@ -76,20 +78,20 @@ Dragable_top_bar_zone::~Dragable_top_bar_zone (){
 
 bool Dragable_top_bar_zone::on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event){
     if (is_in_widget(x, y, event.click)){
-            this->is_active = true;
+            this->focus = true;
             return true;
     }
     return false;
 }
 
 bool Dragable_top_bar_zone::on_mouse_release (const int x, const int y, const Event::Mouse_release& event){
-    this->is_active = false;
+    this->focus = false;
     return true;
 }
 
 bool Dragable_top_bar_zone::on_mouse_pressed_move (const int x, const int y, const Event::Mouse_pressed_move& event){
-    if (this->is_active){
-
+    if (this->focus){
+        std::cout << "from "<< event.move.begin_move.x <<" "<< event.move.begin_move.y << std::endl;
         (*this->controller)(Data_for_controller(event.move.get_move_vector()));
 
         return true;

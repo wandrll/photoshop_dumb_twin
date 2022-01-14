@@ -91,10 +91,10 @@ namespace Event{
     };
 
 
-    class Keyboard_event{
+    class Press_key{
         public:
 
-        Keyboard_event() :
+        Press_key() :
             control_key(0)
         {}
 
@@ -109,7 +109,36 @@ namespace Event{
     };
 
 
-}
+    class Release_key{
+        public:
+
+        Release_key() :
+            control_key(0)
+        {}
+
+
+        Key key;
+        int control_key;
+
+        void print(){
+            printf("keyboard event %d  %d\n", key, control_key);
+        }
+
+    };
+
+
+
+    class Text_enter{
+        public:
+        Text_enter() : keycode('^') {}
+        char keycode;
+
+        Text_enter(char unicode) : keycode(unicode) {}
+
+       
+    };
+
+}   
 
 
 

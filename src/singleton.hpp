@@ -6,7 +6,7 @@
 #include "utils.hpp"
 #include "plugins.hpp"
 #include "main_window_widget.hpp"
-
+#include <ctime>
 
 // #include "canvas_window.hpp"
 class Layer;
@@ -55,6 +55,10 @@ class Singleton{
         main_window = widget;
     }
 
+    clock_t get_start(){
+        return begin;
+    }
+
     Widget_manager* get_main_widget(){
         return main_window;
     }
@@ -95,8 +99,13 @@ class Singleton{
         this->color.color = convert_color(color.hue, color.saturation, color.lightness, color.opacity * 255);
     }
 
+    void set_plugin_manager(Plugin_manager* plugins){
+        this->plugins = plugins;
+    }
 
-
+    Plugin_manager* get_plugin_manager(){
+        return plugins;
+    }
 
     Plugin::AppInterface* get_app_interface(){
         return this->app_interface;
@@ -119,11 +128,13 @@ class Singleton{
         double opacity;
     }color;
     double size;
-
+    clock_t begin;
     Window* window;
     Widget_manager* main_window;
 
     Plugin::AppInterface* app_interface;
+
+    Plugin_manager* plugins;
 
 };
 

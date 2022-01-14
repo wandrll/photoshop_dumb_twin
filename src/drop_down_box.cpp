@@ -6,6 +6,7 @@
 extern Singleton* global_singleton;
 
 Drop_down_widget::Drop_down_widget (const int x, const int y, const int width, const int height, const char* name):
+    Widget(x, y, width, height),
     Widget_manager(x, y, width, height),
     list(new Button_list(x, y + height, 0, 0))
 {
@@ -31,6 +32,7 @@ void Drop_down_widget::add_button (Rectangle_Button* button){
 
 
 Button_list::Button_list (const int x, const int y, const int width, const int height):
+    Widget(x, y, width, height),
     Widget_manager(x, y, width, height){
     this->is_accept_events = false;
 }
@@ -67,6 +69,8 @@ class Open_open_file_widget{
 
 
 File_sub_widget::File_sub_widget(const int x, const int y, const int width, const int height) :
+    Widget(x, y, width, height),
+
     Drop_down_widget(x, y, width, height, "File"){
         Text_button* button1 = new Text_button (0,0, 300, height, "Open file", height, FONT_COLOR, BUTTON_COLOR);
         Controller<Open_open_file_widget, File_sub_widget>* control = new Controller<Open_open_file_widget, File_sub_widget>(this);

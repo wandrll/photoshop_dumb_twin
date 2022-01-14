@@ -341,12 +341,33 @@ Texture::Texture (const int size_x, const int size_y):
         texture(new sf::RenderTexture){
                 this->texture->create(size_x, size_y);
                 sf::RectangleShape rect;
-                rect.setFillColor(sf::Color::White);
-                rect.setOutlineColor(sf::Color::White);
+                rect.setFillColor(sf::Color(0, 0, 0, 0));
+                rect.setOutlineColor(sf::Color(0, 0, 0, 0));
                 rect.setPosition(0,0);
                 rect.setSize({size_x, size_y});
                 this->texture->draw(rect);
+                // printf("Texture constructor %p \n", this);
+                // fflush(stdout);
         }
+
+void Texture::dump(){
+        printf("\n");
+        printf("\n");
+
+        uint8_t* data = (uint8_t*)(get_array());
+
+        for (int i = 0; i < height; i++){
+                printf("\n");
+                for(int j = 0; j < width; j++){
+                        int curr = (i * width + j) * 4;
+                        printf("(%d %d %d %d) ", data[curr], data[curr + 1], data[curr + 2], data[curr + 3]);
+                }
+        }
+        printf("\n");
+        printf("\n");
+
+}
+
 
 
 bool Texture::load_from_file (const std::string& filename){
@@ -363,14 +384,24 @@ bool Texture::load_from_file (const std::string& filename){
     if(!this->texture->create(size.x, size.y)){
             return false;
     }
-    
+    fill_color(Color(0, 0, 0, 0));
+
     sf::Sprite sprite;
     sprite.setTexture(tmp_texture);
-    
-    this->texture->draw(sprite);
+    sprite.setPosition({0,0});
 
+    this->texture->draw(sprite);
+    this->texture->display();
+//     printf("%p ", this);
+        // std::cout << "load file: " << filename << std::endl;
     return true;
 }
+
+bool Texture::save_in_file (std::string& filename){
+        texture->getTexture().copyToImage().saveToFile(filename);
+        return true;
+}
+
 
 
 bool Texture::load_from_memory (const void* data, int width, int height){
@@ -393,7 +424,9 @@ bool Texture::load_from_memory (const void* data, int width, int height){
     
     sf::Sprite sprite;
     sprite.setTexture(tmp_texture);
-    
+    fill_color(Color(0, 0, 0, 0));
+
+
     this->texture->draw(sprite);
 
     return true;
@@ -421,12 +454,8 @@ Texture::~Texture (){
 }
 
 void Texture::fill_color (const Color& color){
-        sf::RectangleShape rect;
-        rect.setFillColor(color.color);
-        rect.setPosition(0, 0);
-        rect.setSize({this->width, this->height});
 
-        this->texture->draw(rect);
+        this->texture->clear(color.color);
 }
 
 

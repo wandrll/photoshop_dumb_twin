@@ -9,7 +9,7 @@
 
 
 
-class Rectangle_widget : public Widget {
+class Rectangle_widget : virtual public Widget {
     public:
 
     Rectangle_widget (const int x, const int y, const int size_x, const int size_y, const Color& col = {255, 0, 0}, const int thickness = 0, const Color& outline_color = {0, 0, 0, 255}) :
@@ -31,7 +31,7 @@ class Rectangle_widget : public Widget {
 
 
 
-class Text_widget : public Widget {
+class Text_widget : virtual public Widget {
     public:
 
     Text_widget (const int x, const int y, const char* text, const int font_size, const Color& col = {0, 0, 0}) :
@@ -61,26 +61,6 @@ class Text_widget : public Widget {
 };
 
 
-template<typename Func>
-class Controller_text_widget: public Text_widget {
-    public:
-
-    Controller_text_widget (Text_widget* widget) :
-        widget(widget)
-    {}
-
-    virtual void operator() (const Data_for_controller& data){
-        if (widget){
-            Func()(data, widget);
-
-        }
-    }
-
-    private:
-
-    Text_widget* widget;
-
-};
 
 
 #endif

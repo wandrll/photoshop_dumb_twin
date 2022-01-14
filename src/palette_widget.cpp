@@ -27,6 +27,7 @@ class Update_light_and_saturation{
 
 
 Palette_widget::Palette_widget (const int x, const int y, const int width, const int height) : 
+    Widget(x, y, width, height),
     Widget_manager(x, y, width, height){
         
     Text_widget* pallete_name = new Text_widget (width/2 - 60, 5, "Colour picker", 20, Color(240, 97,86));
@@ -59,6 +60,7 @@ Palette_widget::Palette_widget (const int x, const int y, const int width, const
 
 
 Saturation_and_lightness_picker::Saturation_and_lightness_picker (const int x, const int y, const int size, const double hue) :
+    Widget(x, y, size, size),
     Widget_manager(x, y, size, size),
     hue(hue),
     texture(size, size)
@@ -157,6 +159,7 @@ class Update_brush_hue{
 
 
 Hue_picker::Hue_picker (const int x, const int y, const int width, const int height, Saturation_and_lightness_picker* palette, const double hue) :
+    Widget(x, y, width, height),
     Widget_manager(x, y, width, 0),
     hue(hue),
     texture(width, height),
@@ -208,6 +211,7 @@ class Set_size{
 
 
 Brush_size_picker::Brush_size_picker (const int x, const int y, const int width, const int height, const char* name) :
+    Widget(x, y, width, height),
     Slider_bar_with_text_box(x, y, width, height, name){
         this->slider_bar->add_controller(new Controller<Set_size, Singleton>(global_singleton));
 }
@@ -227,6 +231,8 @@ class Set_opacity{
 
 
 Opacity_picker::Opacity_picker (const int x, const int y, const int width, const int height, const char* name) :
+    Widget(x, y, width, height),
+
     Slider_bar_with_text_box(x, y, width, height, name){
         this->slider_bar->add_controller(new Controller<Set_opacity, Singleton>(global_singleton));
 }

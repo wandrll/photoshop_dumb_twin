@@ -3,6 +3,7 @@
 
 
 Window_widget::Window_widget (const int x, const int y, const int width, const int height) :
+    Widget(x, y, width, height),
     Widget_manager(x, y, width, height){
         this->set_ability_to_move(true);
 

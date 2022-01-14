@@ -2,6 +2,7 @@
 
 
 Spline_widget::Spline_widget (const int x, const int y, const int width, const int height) : 
+    Widget(x, y, width, height),
     Window_widget(x, y, width, height){
 
     Spline_field* field = new Spline_field(30, 30, width - 60, height - 60, 10);
@@ -11,6 +12,7 @@ Spline_widget::Spline_widget (const int x, const int y, const int width, const i
 }
 
 Spline_field::Spline_field (const int x, const int y, const int width, const int height, const int cnt) : 
+    Widget(x, y, width, height),
     Widget_manager(x, y, width, height),
     texture(width, height){
     
@@ -182,6 +184,7 @@ void Spline_field::draw (const int x, const int y, Texture& window){
 
 
 Slider_for_field::Slider_for_field (const int x, const int y, const int width, const int height, const int left_x_limit, const int top_y_limit, const int right_x_limit, const int bottom_y_limit, std::vector<Slider_for_field*>* ptr) :
+    Widget(x, y, width, height),
     Slider(x, y, width, height, left_x_limit, top_y_limit, right_x_limit, bottom_y_limit),
     vector_ptr(ptr)
 {}

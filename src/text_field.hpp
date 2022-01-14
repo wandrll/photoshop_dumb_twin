@@ -5,16 +5,25 @@
 #include "graphics_provider.hpp"
 #include <string>
 
-class Text_field : public Widget{
+
+
+char transform_into_char (const Event::Press_key& event);
+
+
+
+
+
+
+class Text_field : virtual public Widget{
     public:
 
     Text_field (const int x, const int y, const int width, const int height, const char* line = "Test");
 
-    virtual void draw (const int x, const int y, Texture& window);
+    virtual void draw (const int x, const int y, Texture& window) override;
 
-    virtual bool on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event);
-    virtual bool on_keyboard (const Event::Keyboard_event& event);
-
+    virtual bool on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event) override;
+    virtual bool on_key_press (const Event::Press_key& event) override;
+    virtual bool on_text_enter (const Event::Text_enter& event) override;
 
     virtual ~Text_field ();
 
@@ -44,13 +53,11 @@ class Text_field : public Widget{
 
     private:
 
-
-    void add_character (const Event::Keyboard_event& event);
     void delete_character ();
     void move_cursor_left ();
     void move_cursor_right ();
 
-    bool handle_hotkeys (const Event::Keyboard_event& event);
+    bool handle_hotkeys (const Event::Press_key& event);
 
 
     void update_cursor_position ();

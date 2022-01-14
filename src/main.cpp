@@ -33,10 +33,6 @@ Singleton* global_singleton = NULL;
 
 int main(){
 
-    
-
-
-
 
     global_singleton = new Singleton;
 
@@ -44,22 +40,18 @@ int main(){
     srand(time(NULL));
 
 
-    Main_window_widget app(RESOLUTION_WIDTH, RESOLUTION_HEIGHT);
+    Main_window_widget* app = new Main_window_widget(RESOLUTION_WIDTH, RESOLUTION_HEIGHT);
 
-    global_singleton->set_main_window(&app);
+    global_singleton->set_main_window(app);
 
     Brush* brush = new Brush (0);   
     global_singleton->get_tools()->add_tool(brush);
     Eraser* eraser = new Eraser (10);
     global_singleton->get_tools()->add_tool(eraser);
 
-    Plugin_manager plugins;
-    plugins.load_dlls("plugin_dll");
-
     
 
-    Tools_widget* tools = new Tools_widget(100, 100, 300, 800);
-    Effects_widget* effects = new Effects_widget (1500, 500, 300, 500);
+   
 
 
     const int settings_width = 350;
@@ -68,32 +60,45 @@ int main(){
     Palette_widget* pallete = new Palette_widget ( 0, 0, settings_width, 490);
     settings->register_widget(pallete);
 
-    app.register_widget(settings);
+    app->register_widget(settings);
 
-    app.register_widget(tools);
-    app.register_widget(effects);
+    
 
 ////////////////////////////////////////////////////////////////////////////////
     // std::shared_ptr<Brush> brush (new Brush(5, {128, 128, 128}));
 
 
-    app.open_image("resources/image.jpg");
+    app->open_image("resources/image.jpg");
 
 
 
     // app.register_widget(pallete);
     
-    Spline_widget* level = new Spline_widget (100, 100, 400, 400);
-    app.register_widget(level);
+    Spline_widget* level = new Spline_widget (100, 400, 400, 400);
+    app->register_widget(level);
+
+    Plugin_manager* plugins = new Plugin_manager;
+    plugins->load_dlls("plugin_dll");
+
+    global_singleton->set_plugin_manager(plugins);
+
+    Tools_widget* tools = new Tools_widget(100, 100, 300, 800);
+    Effects_widget* effects = new Effects_widget (1500, 500, 300, 500);
+
+    app->register_widget(tools);
+    app->register_widget(effects);
+
+    app->run();
 
 
+    plugins->deinit_plugins();
 
-    app.run();
-
-    
     delete global_singleton;
     global_singleton = NULL;
 
+    delete app;
+
+    delete plugins;
 
 
     return 0;

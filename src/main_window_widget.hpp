@@ -11,6 +11,10 @@ class Main_window_widget : public Widget_event_reciever {
 
     Main_window_widget (const int width, const int height, const char* name = "APP NAME");
 
+    virtual void draw (const int x, const int y, Texture& window) override{
+        std::cout << "widget manager draw" << std::endl;
+        Widget_event_reciever::draw(x, y, window);
+    }
 
 
 

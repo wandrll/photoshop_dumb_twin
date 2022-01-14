@@ -15,6 +15,8 @@ Layer::Layer (const int x, const int y, const int width, const int height) :
 
 void Layer::draw (const int x, const int y, Texture& window){
     
+    update_texture_to_draw();
+
     Sprite sprite;
     sprite.set_texture(this->texture_to_draw);
     sprite.draw(window, this->x + x, this->y + y);
@@ -48,6 +50,7 @@ void Layer::load_image(const std::string name){
 
 
 Layer_manager_widget::Layer_manager_widget (const int x, const int y, const int width, const int height) : 
+        Widget(x, y, width, height),
         Widget_manager(x, y, width, height),
         active_layer(0)
 {
@@ -150,6 +153,7 @@ void Layer_manager_widget::next_layer (){
 
 
 Layer_controller_widget::Layer_controller_widget (const int x, const int y, const int width, const int height, Layer_manager_widget* layers) : 
+        Widget(x, y, width, height),
         Widget_manager (x, y, width, height),
         layers(layers){
     Text_button* button1 = new Text_button (0, 0, 100, 30, "Add layer", 20,  Color(255, 255, 255), Color (0, 0 ,0));

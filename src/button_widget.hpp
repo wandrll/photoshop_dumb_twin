@@ -5,7 +5,7 @@
 #include "widget_graphics.hpp"
 #include "sprite_widget.hpp"
 
-class Rectangle_Button : public Widget{
+class Rectangle_Button : virtual public Widget{
     public:
 
     Rectangle_Button (const int x, const int y, const int size_x, const int size_y, const int id = -1) :
@@ -79,6 +79,7 @@ class Rectangle_Button : public Widget{
 class Text_button : public Rectangle_Button {
     public:
     Text_button (const int x, const int y, const int size_x, const int size_y, const char* line, const int font_size, const Color& text_color, const Color& background_color, const int id = -1) :
+            Widget(x, y, size_x, size_y),
             Rectangle_Button (x, y, size_x, size_y, id){
         Widget_manager* widget = new Widget_manager(0, 0, size_x, size_y);
 
@@ -91,14 +92,27 @@ class Text_button : public Rectangle_Button {
         this->regular_button = widget;
     }
 
+    void set_caption(const char* line, int font_size, const Vector& pos){
+        delete this->regular_button;
 
+        ::Widget_manager* widget = new ::Widget_manager(0, 0, width, height);
+
+        ::Rectangle_widget* back = new ::Rectangle_widget(0, 0, width, height, ::Color(64, 53, 54));
+        ::Text_widget* text = new ::Text_widget (pos.x, pos.y, line, font_size, ::Color(186, 30, 48));
+
+        widget->register_widget(back);
+        widget->register_widget(text);
+
+        this->regular_button = widget;
+    }
 };
 
 
 
 class Hover_rectangle_button : public Rectangle_Button{
     public:
-    Hover_rectangle_button (const int x, const int y, const int size_x, const int size_y) : 
+    Hover_rectangle_button (const int x, const int y, const int size_x, const int size_y) :
+        Widget(x, y, size_x, size_y), 
         Rectangle_Button(x, y, size_x, size_y),
         is_hovered(false),
         hovered_button(NULL)
@@ -150,6 +164,7 @@ class Button_ok : public Hover_rectangle_button{
     public:
 
     Button_ok(const int x, const int y, const int size_x, const int size_y) :
+            Widget(x, y, size_x, size_y),
             Hover_rectangle_button(x, y, size_x, size_y)
             {
                 this->regular_button = new Widget_sprite(0, 0, this->width, this->height, Resource_type::OK_BUTTON);

@@ -10,15 +10,7 @@
 class Widget {
     public:
 
-    Widget (const int x, const int y, const int width, const int height) :
-        x(x),
-        y(y),
-        width(width),
-        height(height),
-        mark_for_delete(false),
-        is_moveable(false),
-        is_active(true)
-    {}
+    
 
     virtual ~Widget (){
 
@@ -26,10 +18,7 @@ class Widget {
 
     virtual void draw (const int x, const int y, Texture& window) = 0;
     
-    virtual void on_tick (){
-
-    }
-
+    virtual void on_tick (double dt) {}
 
 
     virtual bool on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event);
@@ -40,10 +29,9 @@ class Widget {
 
     virtual bool on_right_mouse_press (const int x, const int y, const Event::Right_Mouse_press& event);
 
-    virtual bool on_keyboard (const Event::Keyboard_event& event);
-
-
-    // virtual bool on_click (const int x, const int y);
+    virtual bool on_key_press (const Event::Press_key& event);
+    virtual bool on_key_release (const Event::Release_key& event);
+    virtual bool on_text_enter (const Event::Text_enter& event);
 
     void move (const Vector& vector){
         this->x += vector.x;
@@ -114,23 +102,35 @@ class Widget {
 
     protected: 
 
+    Widget (const int x, const int y, const int width, const int height) :
+        x(x),
+        y(y),
+        width(width),
+        height(height),
+        mark_for_delete(false),
+        is_moveable(false),
+        is_active(true),
+        focus(false)
+    {}
+
+
     int x;
     int y;
 
     int width;
     int height;
 
-    bool focus;
+    bool is_active;
     bool mark_for_delete;
     bool is_moveable;
 
-    bool is_active;
+    bool focus;
 
 
 };
 
 
-class Widget_manager : public Widget {
+class Widget_manager : virtual public Widget {
     public:
 
     Widget_manager (const int x, const int y, const int width, const int height) :
@@ -139,19 +139,21 @@ class Widget_manager : public Widget {
     {}
     
 
-    virtual void draw (const int x, const int y, Texture& window);
+    virtual void draw (const int x, const int y, Texture& window) override;
 
-    virtual void on_tick ();
+    virtual void on_tick (double dt) override;
 
-    virtual bool on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event);
-    virtual bool on_mouse_release (const int x, const int y, const Event::Mouse_release& event);
+    virtual bool on_mouse_press (const int x, const int y, const Event::Left_Mouse_press& event) override;
+    virtual bool on_mouse_release (const int x, const int y, const Event::Mouse_release& event) override;
 
-    virtual bool on_mouse_pressed_move (const int x, const int y, const Event::Mouse_pressed_move& event);
-    virtual bool on_mouse_released_move (const int x, const int y, const Event::Mouse_released_move& event);
+    virtual bool on_mouse_pressed_move (const int x, const int y, const Event::Mouse_pressed_move& event) override;
+    virtual bool on_mouse_released_move (const int x, const int y, const Event::Mouse_released_move& event) override;
     
-    virtual bool on_right_mouse_press (const int x, const int y, const Event::Right_Mouse_press& event);
+    virtual bool on_right_mouse_press (const int x, const int y, const Event::Right_Mouse_press& event) override;
 
-    virtual bool on_keyboard (const Event::Keyboard_event& event);
+    virtual bool on_key_press (const Event::Press_key& event) override;
+    virtual bool on_key_release (const Event::Release_key& event) override;
+    virtual bool on_text_enter (const Event::Text_enter& event) override;
 
     void open_image (const std::string& name);
 
@@ -168,6 +170,10 @@ class Widget_manager : public Widget {
 
     void delete_widget(Widget* widget);
 
+    const std::vector<Widget*>& get_widgets()const{
+        return widgets;
+    }
+
     protected:
     bool is_accept_events;
     std::vector<Widget*> widgets;
@@ -175,7 +181,7 @@ class Widget_manager : public Widget {
 };
 
 
-class Widget_event_reciever : public Widget_manager{
+class Widget_event_reciever :public Widget_manager{
     public:
     Widget_event_reciever (const int x, const int y, const int width, const int height);
 

@@ -39,8 +39,17 @@ bool Text_field::on_mouse_press (const int x, const int y, const Event::Left_Mou
     return false;
 }
 
+bool Text_field::on_text_enter (const Event::Text_enter& event){
+    content.insert(cursor_index, 1, event.keycode);
+    update_text();
+    move_cursor_right();
 
-bool Text_field::on_keyboard (const Event::Keyboard_event& event){
+    return 0;
+}
+
+
+
+bool Text_field::on_key_press (const Event::Press_key& event){
     if (this->focus){
         
         if (handle_hotkeys(event)){
@@ -66,10 +75,6 @@ bool Text_field::on_keyboard (const Event::Keyboard_event& event){
             case Key::Enter:{
                 proceed_controllers();
                 break;
-            }
-
-            default:{
-                add_character(event);
             }
 
         }
@@ -111,7 +116,7 @@ void Text_field::move_cursor_right (){
     }
 }
 
-bool Text_field::handle_hotkeys (const Event::Keyboard_event& event){
+bool Text_field::handle_hotkeys (const Event::Press_key& event){
 
     if (event.key == Key::v && (event.control_key & int(Control_keys::left_ctrl))){
         std::string clipboard = get_string_from_clipboard();
@@ -129,46 +134,9 @@ bool Text_field::handle_hotkeys (const Event::Keyboard_event& event){
 }
 
 
-void Text_field::add_character (const Event::Keyboard_event& event){
-    bool inserted = false;
-    switch (event.key){
-        case Key::a ... Key::z:{
-            content.insert(cursor_index, 1, char(event.key) + 'a');    
-            inserted = true;
-            break;
-        }
 
-        case Key::Num0 ... Key::Num9:{
-            content.insert(cursor_index, 1, char(event.key) + '0' - int(Key::Num0));    
-            inserted = true;
-            break;
-        }
 
-        case Key::Slash:{
-            content.insert(cursor_index, 1, '/');    
-            inserted = true;
-            break;
-        }
 
-        case Key::Period:{
-            content.insert(cursor_index, 1, '.');
-            inserted = true;
-            break;
-        }
-
-        case Key::Space:{
-            content.insert(cursor_index, 1, ' ');
-            inserted = true;
-            break;
-
-        }
-
-    }
-    if (inserted){
-        update_text();
-        move_cursor_right();
-    }
-}
 
 void Text_field::delete_character (){
     if (cursor_index > 0){

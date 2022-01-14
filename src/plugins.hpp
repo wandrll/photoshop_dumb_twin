@@ -4,7 +4,8 @@
 #include "../plugins/plugin_std.hpp"
 #include "graphics_provider.hpp"
 #include "widget.hpp"
-
+#include "window_widget.hpp"
+#include "button_widget.hpp"
 
 
 class Plugin_manager{
@@ -14,11 +15,15 @@ class Plugin_manager{
 
     void load_dlls(const std::string& path);
 
+    void deinit_plugins ();
+
+    void on_tick(double dt);
 
     private:
 
     std::vector<void*> dlls;
 
+    std::vector<PUPPY::PluginInterface*> plugins;
 
 };
 
@@ -62,6 +67,8 @@ class RenderTarget : public PUPPY::RenderTarget{
 
     virtual void apply_shader(const PUPPY::Shader *shader) override;
 
+    void set_texture(RenderTarget* texture_);
+
     Texture* get_texture() const{
         return texture;
     }
@@ -78,15 +85,7 @@ class RenderTarget : public PUPPY::RenderTarget{
 
 
 struct AppInterface : public PUPPY::AppInterface{
-    AppInterface (){
-        std_version = PUPPY::STD_VERSION;
-        feature_level = 0;
-
-        factory.widget = nullptr;
-        factory.shader = nullptr;
-        factory.target = nullptr;
-    }
-
+    AppInterface ();
 
 // extension
     // enables specified extension
@@ -154,12 +153,12 @@ struct WidgetFactory : public PUPPY::WidgetFactory {
 
 
 
-class AbstractWidget : public virtual PUPPY::Widget{
+class AbstractWidget : virtual public PUPPY::Widget{
     public:
 
     virtual ~AbstractWidget();
 
-    AbstractWidget (::Widget* widget, bool flag_to_delete = true);
+    AbstractWidget (::Widget* widget);
 
     virtual void set_position(const PUPPY::Vec2f &position_) override;
     virtual void set_size(const PUPPY::Vec2f &size_) override;
@@ -181,20 +180,20 @@ class AbstractWidget : public virtual PUPPY::Widget{
     virtual void set_to_delete() override; // set to true -> app will try to delete it as soon as possible from its side
                                       // after once setting to true you can not use this widget anymore, it can 
                                       // already be deleted
-    virtual bool delete_child(Widget *child) override;
+    virtual bool delete_child(PUPPY::Widget *child) override;
     virtual bool delete_from_parent() override;
     
-    virtual void on_render          (const PUPPY::Event::Render          &event) = 0;
-    virtual void on_tick            (const PUPPY::Event::Tick            &event) = 0;
-    virtual void on_mouse_press     (const PUPPY::Event::MousePress      &event) = 0;
-    virtual void on_mouse_release   (const PUPPY::Event::MouseRelease    &event) = 0;
-    virtual void on_mouse_move      (const PUPPY::Event::MouseMove       &event) = 0;
-    virtual void on_key_down        (const PUPPY::Event::KeyDown         &event) = 0;
-    virtual void on_key_up          (const PUPPY::Event::KeyUp           &event) = 0;
-    virtual void on_text_enter      (const PUPPY::Event::TextEnter       &event) = 0;
-    virtual void on_scroll          (const PUPPY::Event::Scroll          &event) = 0;
-    virtual void on_hide            (const PUPPY::Event::Hide            &event) = 0;
-    virtual void on_show            (const PUPPY::Event::Show            &event) = 0;
+    virtual void on_render          (const PUPPY::Event::Render          &event) { }
+    virtual void on_tick            (const PUPPY::Event::Tick            &event) { }
+    virtual void on_mouse_press     (const PUPPY::Event::MousePress      &event) { }
+    virtual void on_mouse_release   (const PUPPY::Event::MouseRelease    &event) { }
+    virtual void on_mouse_move      (const PUPPY::Event::MouseMove       &event) { }
+    virtual void on_key_down        (const PUPPY::Event::KeyDown         &event) { }
+    virtual void on_key_up          (const PUPPY::Event::KeyUp           &event) { }
+    virtual void on_text_enter      (const PUPPY::Event::TextEnter       &event) { }
+    virtual void on_scroll          (const PUPPY::Event::Scroll          &event) { }
+    virtual void on_hide            (const PUPPY::Event::Hide            &event) { }
+    virtual void on_show            (const PUPPY::Event::Show            &event) { }
 
     virtual void hide()  override;
     virtual void show()  override;
@@ -203,13 +202,16 @@ class AbstractWidget : public virtual PUPPY::Widget{
     virtual void set_caption(const char *text, size_t font_size, const PUPPY::Vec2f *pos = nullptr) override;
     virtual void set_base_color(const PUPPY::RGBA &color) override;
 
+    virtual void *get_extra_data(void *arg) override;
+
+    ::Widget* get_app_widget () const;
+
     protected:
 
     ::Widget* widget;
-    AbstractWidget* parent;
+    PUPPY::Widget* parent;
     RenderTarget* texture;
 
-    bool flag_to_delete;
 };
 
 
@@ -220,7 +222,7 @@ class Widget_manager : public virtual AbstractWidget{
 
     virtual ~Widget_manager(){}
 
-    Widget_manager (::Widget_manager* widget, bool flag_to_delete = true);
+    Widget_manager (::Widget_manager* widget);
 
     
 
@@ -228,25 +230,101 @@ class Widget_manager : public virtual AbstractWidget{
     virtual bool delete_child(PUPPY::Widget *child) override;
    
     
-    virtual void on_render          (const PUPPY::Event::Render          &event) override;
-    virtual void on_tick            (const PUPPY::Event::Tick            &event) override;
-    virtual void on_mouse_press     (const PUPPY::Event::MousePress      &event) override;
-    virtual void on_mouse_release   (const PUPPY::Event::MouseRelease    &event) override;
-    virtual void on_mouse_move      (const PUPPY::Event::MouseMove       &event) override;
-    virtual void on_key_down        (const PUPPY::Event::KeyDown         &event) override;
-    virtual void on_key_up          (const PUPPY::Event::KeyUp           &event) override;
-    virtual void on_text_enter      (const PUPPY::Event::TextEnter       &event) override;
-    virtual void on_scroll          (const PUPPY::Event::Scroll          &event) override;
-    virtual void on_hide            (const PUPPY::Event::Hide            &event) override;
-    virtual void on_show            (const PUPPY::Event::Show            &event) override;
+    virtual void on_render          (const PUPPY::Event::Render          &event) override{};
+    virtual void on_tick            (const PUPPY::Event::Tick            &event) override{};
+    virtual void on_mouse_press     (const PUPPY::Event::MousePress      &event) override{};
+    virtual void on_mouse_release   (const PUPPY::Event::MouseRelease    &event) override{};
+    virtual void on_mouse_move      (const PUPPY::Event::MouseMove       &event) override{};
+    virtual void on_key_down        (const PUPPY::Event::KeyDown         &event) override{};
+    virtual void on_key_up          (const PUPPY::Event::KeyUp           &event) override{};
+    virtual void on_text_enter      (const PUPPY::Event::TextEnter       &event) override{};
+    virtual void on_scroll          (const PUPPY::Event::Scroll          &event) override{};
+    virtual void on_hide            (const PUPPY::Event::Hide            &event) override{};
+    virtual void on_show            (const PUPPY::Event::Show            &event) override{};
 
 
-
+    void set_manager (::Widget_manager* widget_manager){
+        this->widget_manager = widget_manager;
+    }
 
 
     protected:
     ::Widget_manager* widget_manager;
 };
+
+
+
+
+class Window : public Widget_manager, public PUPPY::Window{
+    public:
+
+    Window (::Window_widget* widget);
+
+    virtual void set_show_handler(HandlerType &handler_){
+        show = handler_;
+    }
+
+    virtual HandlerType &get_show_handler(){
+        return show;
+    }
+
+    virtual void set_hide_handler(HandlerType &handler_){
+        hide = handler_;
+    }
+
+    virtual HandlerType &get_hide_handler(){
+        return hide;
+    }
+
+    virtual bool set_name(const char *name){}
+    virtual const char *get_name(){
+        return name;
+    }
+
+    private:
+    ::Window_widget* window;
+    HandlerType show;
+    HandlerType hide;
+    const char* name = "default";
+};
+
+
+
+
+class Button : public AbstractWidget, public PUPPY::Button{
+    public:
+
+    Button (::Text_button* button);
+
+    virtual void set_handler(const HandlerType &handler_){
+        func = handler_;
+    }
+
+    virtual HandlerType &get_handler(){
+        return func;
+    }
+    
+    void proceed_handler (){
+        func();
+    }
+
+    virtual void set_caption(const char *text, size_t font_size, const PUPPY::Vec2f *pos = nullptr) override{
+        PUPPY::Vec2f vec = {};
+        if (pos){
+            vec = *pos;
+        }
+        button->set_caption(text, font_size, Vector(vec.x, vec.y));
+    }
+
+    private:
+    ::Text_button* button;
+    HandlerType func;
+
+};
+
+
+
+
 
 
 }

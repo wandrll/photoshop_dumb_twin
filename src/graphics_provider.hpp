@@ -236,7 +236,7 @@ class Drawable_object{
 };
 
 
-class Rectangle : public virtual Drawable_object{
+class Rectangle : virtual public Drawable_object{
     public:
 
     Rectangle ();
@@ -356,6 +356,8 @@ class Texture{
 
     bool load_from_file (const std::string& filename);
 
+    bool save_in_file (std::string& filename);
+
     bool load_from_memory (const void* data, int width, int height);
 
     void clear(){
@@ -369,6 +371,8 @@ class Texture{
     Vector get_size() const{
         return Vector(this->width, this->height);
     }
+
+    void dump();
 
     Color* get_array (){
         display();

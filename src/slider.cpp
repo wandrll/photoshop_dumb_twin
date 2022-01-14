@@ -3,6 +3,7 @@
 #include "widget_graphics.hpp"
 
 Slider::Slider(const int x, const int y, const int width, const int height, const int left_x_limit, const int top_y_limit, const int right_x_limit, const int bottom_y_limit) :
+    Widget(x, y, width, height),
     Widget_manager(x, y, width, height),
     left_x_limit(left_x_limit),
     top_y_limit(top_y_limit),
@@ -82,6 +83,7 @@ void Slider::proceed_controllers(){
 
 
 Horizontal_slider_bar::Horizontal_slider_bar (int x, int y, int width, int height) :
+    Widget(x, y, width, height),
     Widget_manager (x, y, width, height){
         
 
@@ -136,6 +138,7 @@ class Set_line_in_text_field_from_slider{
 
 
 Slider_bar_with_text_box::Slider_bar_with_text_box (const int x, const int y, const int width, const int height, const char* name) :
+        Widget(x, y, width, height),
         Widget_manager (x, y, width, height){
     
         

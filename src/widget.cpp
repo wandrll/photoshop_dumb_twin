@@ -18,9 +18,16 @@ bool Widget::on_right_mouse_press (const int x, const int y, const Event::Right_
     return false;
 }
 
-bool Widget::on_keyboard (const Event::Keyboard_event& event){
+bool Widget::on_key_press (const Event::Press_key& event){
     return false;
 }
+bool Widget::on_key_release (const Event::Release_key& event){
+    return false;
+}
+bool Widget::on_text_enter (const Event::Text_enter& event){
+    return false;
+}
+
 
 
 void Widget_manager::draw (const int x, const int y, Texture& window){
@@ -146,7 +153,7 @@ bool Widget_manager::on_right_mouse_press (const int x, const int y, const Event
     return res;
 }
 
-bool Widget_manager::on_keyboard (const Event::Keyboard_event& event){
+bool Widget_manager::on_key_press (const Event::Press_key& event){
     if (!is_accept_events){
         return false;
     }
@@ -158,7 +165,47 @@ bool Widget_manager::on_keyboard (const Event::Keyboard_event& event){
     bool res = false;
 
     for (int i = size - 1; i >= 0; i--){
-        if(this->widgets[i]->on_keyboard(event)){
+        if(this->widgets[i]->on_key_press(event)){
+            res = true;
+            break;
+        }
+    }
+    return res;
+}
+
+bool Widget_manager::on_key_release (const Event::Release_key& event){
+    if (!is_accept_events){
+        return false;
+    }
+    if (!is_active){
+        return false;
+    }
+    
+    int size = widgets.size();
+    bool res = false;
+
+    for (int i = size - 1; i >= 0; i--){
+        if(this->widgets[i]->on_key_release(event)){
+            res = true;
+            break;
+        }
+    }
+    return res;
+}
+
+bool Widget_manager::on_text_enter (const Event::Text_enter& event){
+    if (!is_accept_events){
+        return false;
+    }
+    if (!is_active){
+        return false;
+    }
+    
+    int size = widgets.size();
+    bool res = false;
+
+    for (int i = size - 1; i >= 0; i--){
+        if(this->widgets[i]->on_text_enter(event)){
             res = true;
             break;
         }
@@ -175,12 +222,12 @@ Widget_manager::~Widget_manager (){
 }
 
 
-void Widget_manager::on_tick (){
+void Widget_manager::on_tick (double dt){
     for (int i = 0; i < this->widgets.size(); i++){
-        widgets[i]->on_tick();
+        widgets[i]->on_tick(dt);
     }
     
-    for (int i = 0; i < this->widgets.size() - 1; i++){
+    for (int i = 0; i < ((int)this->widgets.size()) - 1; i++){
 
         if(widgets[i]->is_marked_for_deletion()){
 
@@ -191,7 +238,9 @@ void Widget_manager::on_tick (){
         }
     }
 
-    if(widgets.back()->is_marked_for_deletion()){
+    // std::cout << "size is " << widgets.size() << std::endl;
+
+    if(widgets.size() && widgets.back()->is_marked_for_deletion()){
 
         delete widgets.back();
         widgets.pop_back();
@@ -225,11 +274,13 @@ void Widget_manager::delete_widget(Widget* widget){
 
 
 Widget_event_reciever::Widget_event_reciever (const int x, const int y, const int width, const int height) :
+        Widget(x, y, width, height),
         Widget_manager(x, y, width, height),
         mouse(global_singleton->get_window())
 {}
 
 void Widget_event_reciever::run(){
+    std::cout << "run main widget" << std::endl;
     // Widget* main_widget = global_singleton->get_main_widget();
     Texture clear_texture(width, height);
     clear_texture.fill_color({32, 32, 32});
@@ -258,17 +309,21 @@ void Widget_event_reciever::run(){
     Event::Mouse_pressed_move mouse_pressed_move;
     Event::Mouse_released_move mouse_released_move;
     Event::Right_Mouse_press mouse_right_press;
-    Event::Keyboard_event keyboard_event;
-
+    Event::Press_key press_key_event;
+    Event::Release_key release_key_event;
+    Event::Text_enter text_enter_event;
 
     clock_t curr = clock();
     clock_t prev = curr;
     while(true){
+        // printf("\n----------------------------------------------------------------\n");
+        // fflush(stdout);
+
         prev = curr;
         curr = clock();
+        global_singleton->get_plugin_manager()->on_tick(static_cast<double>(curr - prev) / CLOCKS_PER_SEC);
+        on_tick(((double)(curr - prev))/CLOCKS_PER_SEC);
         
-        global_singleton->get_tools()->get_tool()->on_tick(((double)(curr - prev))/CLOCKS_PER_SEC);
-
         clear_sprite.draw(*(window), x, y, mode);
         text.clear();
 
@@ -278,7 +333,10 @@ void Widget_event_reciever::run(){
 
         global_singleton->get_window()->display();
 
-        on_tick();
+        
+
+       
+
         mouse.update();
         keyboard.update();
 
@@ -305,10 +363,24 @@ void Widget_event_reciever::run(){
             mouse_released_move.print();
             on_mouse_released_move(0, 0, mouse_released_move);
         }
-        if (this->keyboard.poll_event(keyboard_event)){
-            keyboard_event.print();
-            on_keyboard(keyboard_event);
+        if (this->keyboard.poll_press_event(press_key_event)){
+            press_key_event.print();
+            on_key_press(press_key_event);
         }
+
+        if (this->keyboard.poll_release_event(release_key_event)){
+            on_key_release(release_key_event);
+        }
+
+        if (this->keyboard.poll_release_event(release_key_event)){
+            on_key_release(release_key_event);
+        }
+
+        if (this->keyboard.poll_text_enter(text_enter_event)){
+            // std::cout <<"text enter " << text_enter_event.keycode << std::endl;
+            on_text_enter(text_enter_event);
+        }
+
         // if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)){
             // mark_close();
         // }

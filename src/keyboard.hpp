@@ -10,7 +10,9 @@ class Keyboard{
 
     Keyboard ();
 
-    bool poll_event (Event::Keyboard_event& event);
+    bool poll_press_event (Event::Press_key& event);
+    bool poll_release_event (Event::Release_key& event);
+    bool poll_text_enter (Event::Text_enter& evnt);
 
     void update ();
 
